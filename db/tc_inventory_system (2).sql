@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 25, 2024 at 06:31 PM
+-- Generation Time: Nov 26, 2024 at 10:30 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -38,13 +38,16 @@ CREATE TABLE `categories` (
 --
 
 INSERT INTO `categories` (`category_id`, `name`, `created_at`) VALUES
-(1, 'Demo Category', '2024-11-25 17:22:00'),
+(1, 'Demo', '2024-11-25 17:22:00'),
 (2, 'Raw Materials', '2024-11-25 17:22:00'),
 (3, 'Finished Goods', '2024-11-25 17:22:00'),
 (4, 'Packing Materials', '2024-11-25 17:22:00'),
 (5, 'Machinery', '2024-11-25 17:22:00'),
 (6, 'Work in Progress', '2024-11-25 17:22:00'),
-(8, 'Stationery Items', '2024-11-25 17:22:00');
+(8, 'Stationery Items', '2024-11-25 17:22:00'),
+(11, 'test', '2024-11-26 04:37:12'),
+(13, 'tests', '2024-11-26 04:37:28'),
+(14, 'heheef', '2024-11-26 05:33:50');
 
 -- --------------------------------------------------------
 
@@ -82,7 +85,7 @@ CREATE TABLE `products` (
 --
 
 INSERT INTO `products` (`prod_id`, `name`, `quantity`, `prod_brand`, `prod_model`, `sale_price`, `categorie_id`, `media_id`, `created_at`, `updated_at`) VALUES
-(1, 'Demo Product', '48', '100.00', NULL, 500.00, 1, 0, '2021-04-04 08:45:51', '2024-11-25 17:30:58'),
+(1, 'Demo Product', '48', 'null pa', NULL, 500.00, 1, 0, '2021-04-04 08:45:51', '2024-11-25 17:30:58'),
 (2, 'Box Varieties', '12000', '55.00', NULL, 130.00, 4, 0, '2021-04-04 10:44:52', '2024-11-25 17:30:58'),
 (3, 'Wheat', '69', '2.00', NULL, 5.00, 2, 0, '2021-04-04 10:48:53', '2024-11-25 17:30:58'),
 (4, 'Timber', '1200', '780.00', NULL, 1069.00, 2, 0, '2021-04-04 11:03:23', '2024-11-25 17:30:58'),
@@ -94,7 +97,9 @@ INSERT INTO `products` (`prod_id`, `name`, `quantity`, `prod_brand`, `prod_model
 (10, 'Hasbro Marvel Legends Series Toys', '106', '219.00', NULL, 322.00, 3, 0, '2021-04-04 11:20:28', '2024-11-25 17:30:58'),
 (11, 'Packing Chips', '78', '21.00', NULL, 31.00, 4, 0, '2021-04-04 11:25:22', '2024-11-25 17:30:58'),
 (12, 'Classic Desktop Tape Dispenser 38', '160', '5.00', NULL, 10.00, 8, 0, '2021-04-04 11:48:01', '2024-11-25 17:30:58'),
-(13, 'Small Bubble Cushioning Wrap', '199', '8.00', NULL, 19.00, 4, 0, '2021-04-04 11:49:00', '2024-11-25 17:30:58');
+(13, 'Small Bubble Cushioning Wrap', '199', '8.00', NULL, 19.00, 4, 0, '2021-04-04 11:49:00', '2024-11-25 17:30:58'),
+(15, 'hehesdfssdf', '20', 'hehesfsdf', 'hehesdfsdf', 1238.00, 4, 0, '2024-11-26 08:05:50', '2024-11-26 08:06:28'),
+(16, 'sdf', '2135', 'asjdf', '23gasg', 123356.00, 14, 0, '2024-11-26 08:57:50', '2024-11-26 08:57:50');
 
 -- --------------------------------------------------------
 
@@ -106,24 +111,23 @@ CREATE TABLE `sales` (
   `sales_id` int(11) UNSIGNED NOT NULL,
   `product_id` int(11) UNSIGNED NOT NULL,
   `qty` int(11) NOT NULL,
-  `price` decimal(25,2) NOT NULL,
-  `date` date NOT NULL,
-  `total_price` decimal(10,2) NOT NULL DEFAULT 0.00
+  `total_price` decimal(25,2) NOT NULL,
+  `date` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
 -- Dumping data for table `sales`
 --
 
-INSERT INTO `sales` (`sales_id`, `product_id`, `qty`, `price`, `date`, `total_price`) VALUES
-(1, 1, 2, 1000.00, '2021-04-04', 0.00),
-(2, 3, 3, 15.00, '2021-04-04', 0.00),
-(3, 10, 6, 1932.00, '2021-04-04', 0.00),
-(4, 6, 2, 830.00, '2021-04-04', 0.00),
-(5, 12, 5, 50.00, '2021-04-04', 0.00),
-(6, 13, 21, 399.00, '2021-04-04', 0.00),
-(7, 7, 5, 35.00, '2021-04-04', 0.00),
-(8, 9, 2, 110.00, '2021-04-04', 0.00);
+INSERT INTO `sales` (`sales_id`, `product_id`, `qty`, `total_price`, `date`) VALUES
+(1, 1, 2, 1000.00, '2021-04-04'),
+(2, 3, 3, 15.00, '2021-04-04'),
+(3, 10, 6, 1932.00, '2021-04-04'),
+(4, 6, 2, 830.00, '2021-04-04'),
+(5, 12, 5, 50.00, '2021-04-04'),
+(6, 13, 21, 399.00, '2021-04-04'),
+(7, 7, 5, 35.00, '2021-04-04'),
+(8, 9, 2, 110.00, '2021-04-04');
 
 -- --------------------------------------------------------
 
@@ -147,7 +151,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`User_id`, `name`, `username`, `password`, `user_level`, `image`, `status`, `last_login`) VALUES
-(1, 'Harry Denn', 'admin', 'd033e22ae348aeb5660fc2140aec35850c4da997', 1, 'no_image.png', 1, '2024-11-25 21:28:39'),
+(1, 'Harry Denn', 'admin', 'd033e22ae348aeb5660fc2140aec35850c4da997', 1, 'no_image.png', 1, '2024-11-26 17:09:12'),
 (2, 'John Walker', 'special', 'ba36b97a41e7faf742ab09bf88405ac04f99599a', 2, 'no_image.png', 1, '2024-11-23 10:52:23'),
 (3, 'Christopher', 'user', '12dea96fec20593566ab75692c9949596833adc9', 3, 'no_image.png', 1, '2021-04-04 19:54:46'),
 (4, 'Natie Williams', 'natie', '5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8', 3, 'no_image.png', 1, NULL),
@@ -159,7 +163,11 @@ INSERT INTO `users` (`User_id`, `name`, `username`, `password`, `user_level`, `i
 (28, 'hehe', 'hehe', '42525bb6d3b0dc06bb78ae548733e8fbb55446b3', 1, 'no_image.jpg', 1, NULL),
 (29, 'wawer', 'erwerwer', '9c59841cb1f2452e998f43d943c78ad692f425ce', 2, 'no_image.jpg', 0, NULL),
 (30, 'hmmm', 'hmmm', 'db62d8cde7ff70acafa92bcaee6e2d7c4fc718dc', 1, 'no_image.jpg', 1, NULL),
-(31, 'sdf', 'sdf', '9a6747fc6259aa374ab4e1bb03074b6ec672cf99', 1, 'no_image.jpg', 1, NULL);
+(31, 'sdf', 'sdf', '9a6747fc6259aa374ab4e1bb03074b6ec672cf99', 1, 'no_image.jpg', 1, NULL),
+(32, 'dsfsdf', 'sdfsdf', '9a6747fc6259aa374ab4e1bb03074b6ec672cf99', 2, 'no_image.jpg', 0, NULL),
+(33, 'toast', 'toast', '2d885aa81d3cfb040d3e29f570f8c8855beae0f1', 1, 'no_image.jpg', 1, NULL),
+(34, 'd', 'd', '3c363836cf4e16666669a25da280a1865c2d2874', 1, 'no_image.jpg', 1, '2024-11-26 09:34:35'),
+(39, 'llsad', 'sjad', '183b3e5d949c1009ac986f5e2a8254dfb1c0e48a', 2, 'no_image.jpg', 0, NULL);
 
 -- --------------------------------------------------------
 
@@ -239,7 +247,7 @@ ALTER TABLE `user_groups`
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `category_id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `category_id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `media`
@@ -251,7 +259,7 @@ ALTER TABLE `media`
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `prod_id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `prod_id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `sales`
@@ -263,7 +271,7 @@ ALTER TABLE `sales`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `User_id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
+  MODIFY `User_id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
 
 --
 -- AUTO_INCREMENT for table `user_groups`
