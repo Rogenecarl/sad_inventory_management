@@ -1,118 +1,155 @@
-/* Style table headers */
+/* Minimalist table styling */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.table th,
+.table td {
+  text-align: center;
+  padding: 10px;
+  border: 1px solid #e0e0e0;
+}
+
+.table th {
+  background-color: #fff;
+  font-weight: bold;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: #f3f3f3;
+}
+
+.table-responsive {
+  flex-grow: 1; /* Makes the table container take the remaining space */
+  overflow-y: auto;
+  border: 1px solid #e0e0e0;
+}
+
+/* Add sticky headers if needed */
 .table thead th {
-    background-color: #007bff;
-    color: #fff;
-    font-weight: bold;
-    text-align: center; /* Center-align header text */
-    vertical-align: middle; /* Align content vertically */
-  }
-  
-  /* Style table cells */
-  th,
-  td {
-    padding: 12px 15px;
-    text-align: center;
-    border-bottom: 1px solid #ddd;
-    font-size: 13px;
-  }
-  
-  /* Center-align content inside buttons */
-  .editPro-btn,
-  .deletePro-btn {
-    display: flex;
-    justify-content: center; /* Center content horizontally */
-    align-items: center; /* Center content vertically */
-    padding: 4px 8px;
-    font-size: 14px; /* Adjust font size */
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .editPro-btn {
-    background-color: #28a745;
-    color: #fff;
-    margin-right: 5px;
-  }
-  
-  .editPro-btn:hover {
-    background-color: #218838;
-  }
-  
-  .deletePro-btn {
-    background-color: #dc3545;
-    color: #fff;
-  }
-  
-  .deletePro-btn:hover {
-    background-color: #c82333;
-  }
-  
-  /* Style for icons inside the buttons */
-  .editPro-btn i,
-  .deletePro-btn i {
-    font-size: 18px;
-  }
-  
-  .editPro-btn,
-  .deletePro-btn {
-    width: auto; 
-    height: auto;
-  }
-  
-  .pagination-container button {
-    margin-right: 5px;
-  }
-  
-  table {
-    font-size: 12px;
-  }
-  
-  th,
-  td {
-    padding: 5px;
-    margin: 0;
-    text-align: center; /* Center-align all table content */
-  }
-  
-  /* Fixed height for scrollable table body */
-  tbody {
-    display: block;
-    height: 445px; /* Adjust as needed */
-    overflow-y: auto;
-  }
-  
-  thead,
-  tbody tr {
-    display: table;
-    width: 100%;
-    table-layout: fixed; /* Prevent table from shifting */
-  }
-  
-  thead {
-    width: calc(100% - 1em);
-  }
-  
-  th:first-child,
-  td:first-child {
-    padding-left: 10px;
-  }
-  
-  th:last-child,
-  td:last-child {
-    padding-right: 10px;
-  }
-  
-  /* Responsive styles for smaller screens */
-  @media only screen and (max-width: 768px) {
-    table {
-      font-size: 10px;
-    }
-  
-    th,
-    td {
-      padding: 2px;
-    }
-  }
-  
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background-color: #007bff;
+  color: #fff;
+  font-weight: bold;
+}
+
+/* Flex container for header elements */
+.card-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-header form {
+  flex-grow: 1;
+}
+
+.card-header input[type="text"] {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  outline: none;
+}
+
+/* Button styles */
+.btn {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.card-header button:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
+}
+
+.editCat-btn,
+.deleteCat-btn {
+  padding: 8px 12px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  justify-content: center;
+  align-items: center;
+}
+
+.editCat-btn {
+  background-color: #28a745;
+  color: #fff;
+}
+
+.editCat-btn:hover {
+  background-color: #218838;
+}
+
+.deleteCat-btn {
+  background-color: #dc3545;
+  color: #fff;
+}
+
+.deleteCat-btn:hover {
+  background-color: #c82333;
+}
+
+/* Style for icons inside the buttons */
+.editCat-btn i,
+.deleteCat-btn i {
+  font-size: 18px;
+}
+
+/* Optional: To ensure buttons are the same size */
+.editCat-btn,
+.deleteCat-btn {
+  width: 20px;
+  height: 20px;
+}
+
+/* Responsive Modal */
+.modal-content {
+  border-radius: 8px;
+  padding: 16px;
+}
+
+/* Pagination */
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+}
+
+.total-users {
+  font-size: 14px;
+  color: #6c757d;
+}
+
+.pagination-container button {
+  padding: 6px 12px;
+  font-size: 14px;
+  border-radius: 4px;
+  border: none;
+  background-color: #007bff;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.pagination-container button:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
+}

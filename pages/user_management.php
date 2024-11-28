@@ -13,27 +13,23 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
     <h1 class="dash-fix">User Management</h1>
 
     <div class="main__container">
-        <div class="container p-0 m-0">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="card">
-                        <div class="card-header d-flex justify-content-between">
-                            <form action="_redirect.php" method="post">
-                                <div class="form-group">
-                                    <input type="text" class="form-control" name="userSearch" id="userSearch"
-                                        placeholder="Search here ..." autofocus required>
-                                </div>
-                            </form>
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                                data-bs-target="#createUserModal">
-                                Create User
-                            </button>
-                        </div>
-                        <div class="card-body">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <form action="_redirect.php" method="post">
+                        <input type="text" class="form-control" name="userSearch" id="userSearch"
+                            placeholder="Search here ..." autofocus required>
+                    </form>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                        data-bs-target="#createUserModal">
+                        Add Product
+                    </button>
+                </div>
+                <div class="card-body">
 
-                            <div class="table-responsive">
-                                <table class="table table-bordered">
-                                    <thead>
+                    <div class="table-responsive" style="height: 61vh; overflow-y: auto;">
+                        <table class="table table-striped table-bordered" style="text-align: center; vertical-align: middle;">
+                            <thead>
                                         <tr>
                                             <th class="text-center">#</th>
                                             <th>Name</th>
@@ -60,6 +56,7 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
 
                                         $counter = 1; // Counter for the row number
                                         while ($row = $stmt->fetch()) {
+                                            $createdAt = date_create($row['last_login']);
                                             ?>
                                             <tr>
                                                 <td class="text-center"><?= $counter++ ?></td>
@@ -67,9 +64,11 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
                                                 <td><?= htmlspecialchars($row['username']) ?></td>
                                                 <td><?= $user_levels[$row['user_level']] ?></td>
                                                 <td><?= $statuses[$row['status']] ?></td>
-                                                <td><?= ($row['last_login'] ? htmlspecialchars($row['last_login']) : 'Not logged in') ?>
-                                                </td>
                                                 <td class="text-center">
+                                                    <?= ($createdAt) ? date_format($createdAt, 'F j, Y, g:i:s a') : 'Not logged in' ?>
+                                                </td>
+                                                </td>
+                                                <td class="text-center d-flex justify-content-center gap-2">
                                                     <button type="button" class="editU-btn btn-secondary"
                                                         data-bs-toggle="modal"
                                                         data-bs-target="#editUserModal_<?= $row['User_id'] ?>">
@@ -182,12 +181,11 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
                                     </tbody>
                                 </table>
                             </div>
-                            <div class="pagination-container d-flex">
-                                <span class="total-users me-auto p-2">Showing 8 out of 0 users</span>
-                                <button class="prev-page btn btn-secondary" disabled>Previous</button>
-                                <button class="next-page btn btn-secondary" disabled>Next</button>
-                            </div>
-                        </div>
+                           <!-- Pagination footer -->
+                    <div class="pagination-container d-flex gap-2">
+                        <span class="total-users me-auto p-2">Showing 8 out of 0 users</span>
+                        <button class="prev-page btn btn-secondary" disabled>Previous</button>
+                        <button class="next-page btn btn-secondary" disabled>Next</button>
                     </div>
                 </div>
             </div>

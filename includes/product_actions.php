@@ -71,7 +71,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['proId'])) {
         $stmt = $conn->prepare("DELETE FROM products WHERE prod_id = :proId");
         $stmt->execute([':proId' => $proId]);
 
-        // Redirect with success message
         header("Location: ../pages/products.php?message=User deleted successfully");
         exit();
     } catch (PDOException $e) {
