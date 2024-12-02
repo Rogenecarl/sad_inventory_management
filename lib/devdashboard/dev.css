@@ -1,36 +1,42 @@
-.card {
-    border-radius: 12px;
+.card-highlight {
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
 }
-.card-body {
-    color: #495057;
+
+.card-highlight:hover {
+    transform: scale(1.05);
 }
-.card-title {
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #343a40;
+
+/* Center the chart within its container */
+#salesBarChart {
+    display: block;
+    margin: 0 auto;
+    height: 400px;
 }
-.card:nth-child(1) .card-body {
-    background-color: #e3f2fd;
+
+/* Adjust card styles for centering */
+.card {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
 }
-.card:nth-child(2) .card-body {
-    background-color: #e8f5e9;
+
+.chartjs-legend {
+    justify-content: center;
+    align-items: center;
 }
-.card:nth-child(3) .card-body {
-    background-color: #fff3e0;
+
+.table {
+    margin-top: 10px;
+    border: 1px solid #ddd;
 }
-.card:nth-child(4) .card-body {
-    background-color: #fce4ec;
-}
-.row {
-    margin: 20px 0;
-}
-@media (max-width: 768px) {
-    .d-flex {
-        flex-wrap: wrap;
-    }
-    .card {
-        width: 100%;
-        margin-bottom: 20px;
-    }
+
+.table th {
+    background-color: #007bff;
+    color: white;
+    text-align: left;
 }

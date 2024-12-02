@@ -1,7 +1,7 @@
 <?php
 require_once 'load.php';
 
-//add users
+// Add user
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['createUser'])) {
     $name = $_POST['name'];
     $username = $_POST['username'];
@@ -10,6 +10,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['createUser'])) {
     $status = $_POST['status'];
 
     $hashed_password = sha1($password);
+
+    $stmt = $conn->prepare("SELECT * FROM users WHERE name = :name AND username = :username");
+    $stmt->execute([
+        ':name' => $name,
+        ':username' => $username
+    ]);
+
+    if ($stmt->rowCount() > 0) {
+        header("Location: ../pages/user_management.php?message=Error: Name and Username combination already exists");
+        exit();
+    }
 
     try {
         $stmt = $conn->prepare("INSERT INTO users (name, username, password, user_level, status) 
@@ -29,13 +40,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['createUser'])) {
     }
 }
 
-//update users
+
+
+// Update user
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['updateUser'])) {
     $userId = $_GET['userId'];
     $name = $_POST['name'];
     $username = $_POST['username'];
     $role = $_POST['role'];
     $status = $_POST['status'];
+
+    $stmt = $conn->prepare("SELECT * FROM users WHERE name = :name AND username = :username AND User_id != :userId");
+    $stmt->execute([
+        ':name' => $name,
+        ':username' => $username,
+        ':userId' => $userId
+    ]);
+
+    if ($stmt->rowCount() > 0) {
+        header("Location: ../pages/user_management.php?message=Error: Name and Username combination already exists");
+        exit();
+    }
 
     if (!empty($_POST['password'])) {
         $password = $_POST['password'];
@@ -63,6 +88,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['updateUser'])) {
     header("Location: ../pages/user_management.php?message=User updated successfully");
     exit();
 }
+
+
 
 //delete users
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['userId'])) {

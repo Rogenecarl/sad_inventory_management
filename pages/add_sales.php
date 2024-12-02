@@ -13,13 +13,11 @@ $quantities = isset($_GET['quantity']) ? $_GET['quantity'] : [];
 
 global $conn;
 
-// Handle Add Sale action
 if (isset($_GET['addSale'])) {
-    $productId = key($_GET['addSale']); // Get the product ID
-    $quantity = intval($_GET['quantity'][$productId]); // Get the quantity
-    $saleDate = $_GET['sale_date'][$productId]; // Get the sale date
+    $productId = key($_GET['addSale']); 
+    $quantity = intval($_GET['quantity'][$productId]); 
+    $saleDate = $_GET['sale_date'][$productId];
 
-    // Fetch the current product details
     $stmt = $conn->prepare("SELECT quantity, sale_price FROM products WHERE prod_id = ?");
     $stmt->execute([$productId]);
     $product = $stmt->fetch();
@@ -28,41 +26,22 @@ if (isset($_GET['addSale'])) {
         $currentQuantity = intval($product['quantity']);
         $salePrice = $product['sale_price'];
 
-        // Check if enough stock is available
         if ($quantity > $currentQuantity) {
             echo "<script>alert('Insufficient stock for this product.');</script>";
         } else {
-            // Calculate total price
             $totalPrice = $salePrice * $quantity;
 
-            // Check if the product already exists in the sales table
-            $checkSaleStmt = $conn->prepare("SELECT qty, total_price, date FROM sales WHERE product_id = ?");
-            $checkSaleStmt->execute([$productId]);
-            $existingSale = $checkSaleStmt->fetch();
+            // Always insert a new sale entry, even for existing products
+            $insertSaleStmt = $conn->prepare(
+                "INSERT INTO sales (product_id, qty, total_price, date, sales_month) VALUES (?, ?, ?, ?, ?)"
+            );
 
-            if ($existingSale) {
-                // Product already exists in the sales table, update quantity, total price, and sale date
-                $newQuantity = $existingSale['qty'] + $quantity;
-                $newTotalPrice = $existingSale['total_price'] + $totalPrice;
-                $newSaleDate = $saleDate; // update the sale date
+            // Extract the month from the sale date
+            $salesMonth = date('m', strtotime($saleDate));  // Get the month as '01', '02', '03', etc.
+            $insertSaleStmt->execute([$productId, $quantity, $totalPrice, $saleDate, (int)$salesMonth]);
 
-                $updateSaleStmt = $conn->prepare(
-                    "UPDATE sales SET qty = ?, total_price = ?, date = ? WHERE product_id = ?"
-                );
-                $updateSaleStmt->execute([$newQuantity, $newTotalPrice, $newSaleDate, $productId]);
+            echo "<script>alert('Sale added successfully.');</script>";
 
-                echo "<script>alert('Sale updated successfully.');</script>";
-            } else {
-                // Product does not exist in the sales table, insert new sale record
-                $insertSaleStmt = $conn->prepare(
-                    "INSERT INTO sales (product_id, qty, total_price, date) VALUES (?, ?, ?, ?)"
-                );
-                $insertSaleStmt->execute([$productId, $quantity, $totalPrice, $saleDate]);
-
-                echo "<script>alert('Sale added successfully.');</script>";
-            }
-
-            // Update the products table quantity
             $newProductQuantity = $currentQuantity - $quantity;
             $updateProductStmt = $conn->prepare("UPDATE products SET quantity = ? WHERE prod_id = ?");
             $updateProductStmt->execute([$newProductQuantity, $productId]);
@@ -73,9 +52,9 @@ if (isset($_GET['addSale'])) {
         echo "<script>alert('Product not found.');</script>";
     }
 }
+
 ?>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 <link rel="stylesheet" href="../lib/addsales/addsales.css">
 
 <main class="main container" id="main">
@@ -85,7 +64,6 @@ if (isset($_GET['addSale'])) {
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-header">
-                    <!-- Use GET method to include search in the URL -->
                     <form action="" method="get" id="searchForm">
                         <div class="input-group">
                             <button type="submit" class="btn btn-primary">Search</button>
@@ -98,7 +76,6 @@ if (isset($_GET['addSale'])) {
                 <div class="card-body">
                     <div class="table-responsive" style="height: 61vh; overflow-y: auto;">
                         <form action="" method="get" id="salesForm">
-                            <!-- Pass the current search term -->
                             <input type="hidden" name="ProductSearch" value="<?= htmlspecialchars($searchTerm) ?>">
                             <table class="table table-striped table-bordered"
                                 style="text-align: center; vertical-align: middle;">
@@ -114,7 +91,6 @@ if (isset($_GET['addSale'])) {
                                 </thead>
                                 <tbody id="productTableBody">
                                     <?php
-                                    // Modify SQL query to include search functionality
                                     if (!empty($searchTerm)) {
                                         $stmt = $conn->prepare(
                                             "SELECT prod_id, name, sale_price, prod_brand, prod_model 
@@ -127,9 +103,8 @@ if (isset($_GET['addSale'])) {
                                         $stmt = $conn->query("SELECT prod_id, name, sale_price FROM products");
                                     }
 
-                                    // Display results
                                     while ($row = $stmt->fetch()) {
-                                        $currentDate = date('Y-m-d'); // Get the current date
+                                        $currentDate = date('Y-m-d');
                                         $prod_id = $row['prod_id'];
                                         $price = $row['sale_price'];
                                         $quantity = isset($quantities[$prod_id]) ? $quantities[$prod_id] : 1;
@@ -154,7 +129,7 @@ if (isset($_GET['addSale'])) {
                                                 name="sale_date[<?= $prod_id ?>]" required>
                                         </td>
                                         <td class="text-center">
-                                            <button type="button" class="btn btn-primary addSaleButton"
+                                            <button type="button" class="sale-button btn addSaleButton"
                                                 data-prod-id="<?= $prod_id ?>" style="white-space: nowrap;">
                                                 <i class="fa fa-plus-circle"></i> Add Sale
                                             </button>

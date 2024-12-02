@@ -23,6 +23,7 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
                     </form>
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                         data-bs-target="#createCatModal">
+                        <i class="fa fa-plus-circle"></i>
                         Add Category
                     </button>
                 </div>

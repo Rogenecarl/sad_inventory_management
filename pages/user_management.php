@@ -22,7 +22,8 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
                     </form>
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                         data-bs-target="#createUserModal">
-                        Add Product
+                        <i class="fa fa-plus-circle"></i>
+                        Add User
                     </button>
                 </div>
                 <div class="card-body">
@@ -42,7 +43,6 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
                                     </thead>
                                     <tbody>
                                         <?php
-                                        // Fetch users from the database
                                         $stmt = $conn->query("SELECT User_id, name, username, user_level, status, last_login FROM users");
                                         $user_levels = [
                                             1 => 'Developer',
@@ -54,7 +54,7 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
                                             0 => 'Inactive'
                                         ];
 
-                                        $counter = 1; // Counter for the row number
+                                        $counter = 1;
                                         while ($row = $stmt->fetch()) {
                                             $createdAt = date_create($row['last_login']);
                                             ?>
@@ -243,8 +243,6 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
     </div>
 </main>
 
-
-<!-- sidebar & header functions -->
 <script src="../lib/usermanagement/userscript.js"></script>
 </body>
 

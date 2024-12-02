@@ -21,13 +21,15 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
                     </form>
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                         data-bs-target="#createProductModal">
+                        <i class="fa fa-plus-circle"></i>
                         Add Product
                     </button>
                 </div>
                 <div class="card-body">
 
                     <div class="table-responsive" style="height: 61vh; overflow-y: auto;">
-                        <table class="table table-striped table-bordered" style="text-align: center; vertical-align: middle;">
+                        <table class="table table-striped table-bordered"
+                            style="text-align: center; vertical-align: middle;">
                             <thead>
                                 <tr>
                                     <th class="text-center">#</th>
@@ -45,7 +47,7 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
                             </thead>
                             <tbody>
                                 <?php
-                                $stmt = $conn->query("SELECT prod_id, name, categorie_id, prod_brand, prod_model, quantity, sale_price, created_at, updated_at FROM products");
+                                $stmt = $conn->query("SELECT prod_id, name, photo, categorie_id, prod_brand, prod_model, quantity, sale_price, created_at, updated_at FROM products");
                                 $categoryStmt = $conn->prepare("SELECT name FROM categories WHERE category_id = ?");
 
                                 $counter = 1;
@@ -58,7 +60,14 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
                                     ?>
                                     <tr>
                                         <td class="text-center"><?= $counter++ ?></td>
-                                        <td class="text-center"><?= htmlspecialchars($row['prod_model']) ?></td>
+                                        <td class="text-center">
+                                            <?php if (!empty($row['photo'])): ?>
+                                                <img src="../uploads/products/<?= htmlspecialchars($row['photo']) ?>"
+                                                    alt="Product Image" width="100">
+                                            <?php else: ?>
+                                                No photo available
+                                            <?php endif; ?>
+                                        </td>
                                         <td class="text-center"><?= htmlspecialchars($row['name']) ?></td>
                                         <td class="text-center"><?= htmlspecialchars($category) ?></td>
                                         <td class="text-center"><?= htmlspecialchars($row['prod_brand']) ?></td>
@@ -93,36 +102,55 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
                                                     </h5>
                                                 </div>
                                                 <form action="../includes/product_actions.php?proId=<?= $row['prod_id'] ?>"
-                                                    method="post">
+                                                    method="post" enctype="multipart/form-data">
                                                     <div class="modal-body">
                                                         <div class="form-group">
-                                                            <label for="" class="form-label">Product Name</label>
+                                                            <label for="prodname" class="form-label">Product Name</label>
                                                             <input type="text" class="form-control" name="prodname"
                                                                 id="prodname" value="<?= htmlspecialchars($row['name']) ?>"
                                                                 required>
                                                         </div>
+
                                                         <div class="form-group">
-                                                            <label for="" class="form-label">Brand</label>
+                                                            <label for="productPhoto" class="form-label">Upload New
+                                                                Photo</label>
+                                                            <input type="file" class="form-control" name="productPhoto"
+                                                                id="productPhoto" accept="image/*">
+                                                            <small>Leave empty to keep the current photo.</small>
+                                                            <?php if (!empty($row['photo'])): ?>
+                                                                <div class="mt-2">
+                                                                    <img src="../uploads/products/<?= htmlspecialchars($row['photo']) ?>"
+                                                                        alt="Current Photo" class="img-fluid"
+                                                                        style="max-height: 200px;">
+                                                                </div>
+                                                            <?php endif; ?>
+                                                        </div>
+
+                                                        <div class="form-group">
+                                                            <label for="prodbrand" class="form-label">Brand</label>
                                                             <input type="text" class="form-control" name="prodbrand"
                                                                 id="prodbrand"
                                                                 value="<?= htmlspecialchars($row['prod_brand']) ?>"
                                                                 required>
                                                         </div>
+
                                                         <div class="form-group">
-                                                            <label for="" class="form-label">Model</label>
+                                                            <label for="prodmodel" class="form-label">Model</label>
                                                             <input type="text" class="form-control" name="prodmodel"
                                                                 id="prodmodel"
                                                                 value="<?= htmlspecialchars($row['prod_model']) ?>"
                                                                 required>
                                                         </div>
+
                                                         <div class="form-group">
-                                                            <label for="" class="form-label">Stocks</label>
+                                                            <label for="prodquan" class="form-label">Stocks</label>
                                                             <input type="number" class="form-control" name="prodquan"
                                                                 id="prodquan"
                                                                 value="<?= htmlspecialchars($row['quantity']) ?>" required>
                                                         </div>
+
                                                         <div class="form-group">
-                                                            <label for="" class="form-label">Price</label>
+                                                            <label for="prodprice" class="form-label">Price</label>
                                                             <input type="number" class="form-control" name="prodprice"
                                                                 id="prodprice"
                                                                 value="<?= htmlspecialchars($row['sale_price']) ?>"
@@ -131,16 +159,15 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
                                                     </div>
                                                     <div class="modal-footer">
                                                         <button type="submit" name="updateproduct" id="updateproduct"
-                                                            class="btn btn-primary">Save
-                                                            Changes</button>
+                                                            class="btn btn-primary">Save Changes</button>
                                                         <button type="button" class="btn btn-secondary"
                                                             data-bs-dismiss="modal">Close</button>
                                                     </div>
                                                 </form>
-
                                             </div>
                                         </div>
                                     </div>
+
 
                                     <!-- Delete product Modal -->
                                     <div class="modal fade" tabindex="-1" role="dialog"
@@ -185,7 +212,7 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
             </div>
         </div>
 
-        <!-- add product Modal -->
+        <!-- Add Product Modal -->
         <div class="modal fade" tabindex="-1" role="dialog" id="createProductModal">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -193,22 +220,28 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
                         <h5 class="modal-title">Add Product</h5>
                     </div>
 
-                    <form action="../includes/product_actions.php" method="post">
+                    <!-- Added enctype="multipart/form-data" to the form -->
+                    <form action="../includes/product_actions.php" method="post" enctype="multipart/form-data">
                         <div class="modal-body">
                             <div class="form-group">
                                 <label for="" class="form-label">Product Name</label>
-                                <input type="" class="form-control" name="prodname" id="prodname" required>
+                                <input type="text" class="form-control" name="prodname" id="prodname">
                             </div>
+
+                            <div class="form-group">
+                                <label for="productPhoto" class="form-label">Upload Photo (Optional)</label>
+                                <input type="file" class="form-control" name="productPhoto" id="productPhoto"
+                                    accept="image/*">
+                            </div>
+
                             <div class="form-group">
                                 <label for="category" class="form-label">Category</label>
                                 <select class="form-select" name="category" required>
                                     <?php
                                     $categoriesStmt = $conn->query("SELECT category_id, name FROM categories");
-                                    $currentCategoryId = $row['categorie_id'];
                                     while ($categoryRow = $categoriesStmt->fetch()) {
                                         ?>
-                                        <option value="<?= $categoryRow['category_id'] ?>"
-                                            <?= ($categoryRow['category_id'] == $currentCategoryId) ? 'selected' : '' ?>>
+                                        <option value="<?= $categoryRow['category_id'] ?>">
                                             <?= htmlspecialchars($categoryRow['name']) ?>
                                         </option>
                                     <?php } ?>
@@ -243,6 +276,7 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
                 </div>
             </div>
         </div>
+
 
     </div>
 </main>

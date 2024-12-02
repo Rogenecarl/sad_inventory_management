@@ -10,7 +10,7 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
 
 <main class="main container" id="main">
     <?php include('../layouts/sidebar.php'); ?>
-    <h1 class="dash-fix">Categories</h1>
+    <h1 class="dash-fix">Manage Sales</h1>
 
     <div class="main__container">
 
@@ -23,7 +23,7 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
                     </form>
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                         data-bs-target="#createCatModal">
-                        Add Category
+                        Add Sales
                     </button>
                 </div>
 
@@ -44,11 +44,13 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
                             <tbody>
 
                                 <?php
+                                // Adjusted SQL query to sum the quantity and total price per product
                                 $stmt = $conn->query("
-                                        SELECT s.sales_id, p.name, s.qty, s.total_price, s.date
-                                        FROM sales s
-                                        JOIN products p ON s.product_id = p.prod_id
-                                    ");
+                                    SELECT p.name, SUM(s.qty) as total_qty, SUM(s.total_price) as total_price
+                                    FROM sales s
+                                    JOIN products p ON s.product_id = p.prod_id
+                                    GROUP BY s.product_id, p.name
+                                ");
 
                                 $counter = 1;
                                 while ($row = $stmt->fetch()) {
@@ -56,16 +58,16 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
                                     <tr>
                                         <td class="text-center"><?= $counter++ ?></td>
                                         <td class="text-center"><?= htmlspecialchars($row['name']) ?></td>
-                                        <td class="text-center"><?= htmlspecialchars($row['qty']) ?></td>
-                                        <td class="text-center"><?= '₱ ' . number_format($row['total_price'], 0) ?>
-                                        <td class="text-center"><?= htmlspecialchars($row['date']) ?></td>
+                                        <td class="text-center"><?= htmlspecialchars($row['total_qty']) ?></td>
+                                        <td class="text-center"><?= '₱ ' . number_format($row['total_price'], 0) ?></td>
+                                        <td class="text-center"><?= date('Y-m-d') ?></td> <!-- You can adjust the date as needed -->
                                         <td class="text-center d-flex justify-content-center gap-2">
                                             <button type="button" class="editCat-btn btn-secondary" data-bs-toggle="modal"
-                                                data-bs-target="#editCatModal_<?= $row['sales_id'] ?>">
+                                                data-bs-target="#editCatModal_<?= $row['product_id'] ?>">
                                                 <i class="ri-pencil-line"></i>
                                             </button>
                                             <button type="button" class="deleteCat-btn btn-danger" data-bs-toggle="modal"
-                                                data-bs-target="#deleteCatModal_<?= $row['sales_id'] ?>">
+                                                data-bs-target="#deleteCatModal_<?= $row['product_id'] ?>">
                                                 <i class="ri-delete-bin-line"></i>
                                             </button>
                                         </td>
@@ -73,18 +75,13 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
 
                                     <!-- Edit User Modal -->
                                     <div class="modal fade" tabindex="-1" role="dialog"
-                                        id="editCatModal_<?= $row['sales_id'] ?>">
+                                        id="editCatModal_<?= $row['product_id'] ?>">
                                         <div class="modal-dialog" role="document">
                                             <div class="modal-content">
                                                 <div class="modal-header">
-                                                    <h5 class="modal-title">Edit Category -
-                                                        <?= htmlspecialchars($row['name']) ?>
-                                                    </h5>
+                                                    <h5 class="modal-title">Edit Category - <?= htmlspecialchars($row['name']) ?></h5>
                                                 </div>
-
-                                                <form
-                                                    action="../includes/category_actions.php?catId=<?= $row['sales_id'] ?>"
-                                                    method="post">
+                                                <form action="../includes/category_actions.php?catId=<?= $row['product_id'] ?>" method="post">
                                                     <div class="modal-body">
                                                         <div class="form-group">
                                                             <label for="" class="form-label">Name</label>
@@ -95,8 +92,7 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
                                                     <div class="modal-footer">
                                                         <button type="submit" name="updateCat" id="updateCat"
                                                             class="btn btn-primary">Save Changes</button>
-                                                        <button type="button" class="btn btn-secondary"
-                                                            data-bs-dismiss="modal">Close</button>
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                                     </div>
                                                 </form>
                                             </div>
@@ -105,28 +101,20 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
 
                                     <!-- Delete User Modal -->
                                     <div class="modal fade" tabindex="-1" role="dialog"
-                                        id="deleteCatModal_<?= $row['sales_id'] ?>">
+                                        id="deleteCatModal_<?= $row['product_id'] ?>">
                                         <div class="modal-dialog" role="document">
                                             <div class="modal-content">
                                                 <div class="modal-header">
-                                                    <h5 class="modal-title">Delete Category -
-                                                        <?= htmlspecialchars($row['name']) ?>
-                                                    </h5>
+                                                    <h5 class="modal-title">Delete Category - <?= htmlspecialchars($row['name']) ?></h5>
                                                 </div>
-                                                <form
-                                                    action="../includes/category_actions.php?catId=<?= $row['sales_id'] ?>"
-                                                    method="post">
+                                                <form action="../includes/category_actions.php?catId=<?= $row['product_id'] ?>" method="post">
                                                     <div class="modal-body">
-                                                        <p>Are you sure you want to delete
-                                                            <?= htmlspecialchars($row['name']) ?>?
-                                                        </p>
+                                                        <p>Are you sure you want to delete <?= htmlspecialchars($row['name']) ?>?</p>
                                                     </div>
                                                     <div class="modal-footer">
                                                         <button type="submit" name="deleteCat" id="deleteCat"
                                                             class="btn btn-danger">Delete</button>
-
-                                                        <button type="button" class="btn btn-secondary"
-                                                            data-bs-dismiss="modal">Close</button>
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                                     </div>
                                                 </form>
                                             </div>
@@ -174,7 +162,6 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
 
     </div>
 </main>
-
 
 <script src="../lib/category/category.js"></script>
 </body>
