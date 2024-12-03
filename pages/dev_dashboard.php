@@ -138,7 +138,7 @@ $recentProducts = $recentProductsStmt->fetchAll(PDO::FETCH_ASSOC);
                     <h5 class="card-title">Recently Added Products</h5>
                     <ul class="list-group">
                         <?php foreach ($recentProducts as $product): ?>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <li class="list-group-item d-flex justify-content-between align-items-center mb-4">
                                 <?php echo $product['name']; ?>
                                 <span>$<?php echo number_format($product['sale_price'], 2); ?></span>
                             </li>
@@ -190,7 +190,7 @@ $recentProducts = $recentProductsStmt->fetchAll(PDO::FETCH_ASSOC);
         labels: <?php echo json_encode($monthlyData['months']); ?>,
         datasets: [
             {
-                label: 'Quantity Sold',
+                label: 'Product Sold',
                 data: <?php echo json_encode($monthlyData['total_quantity']); ?>,
                 backgroundColor: [
                     'rgba(255, 99, 132, 0.2)', // January

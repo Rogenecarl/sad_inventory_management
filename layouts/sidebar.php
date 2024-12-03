@@ -7,7 +7,7 @@
       </div>
 
       <div class="sidebar__info">
-        <h3>Super Admin</h3>
+        <h3>Hello, Dev</h3>
         <span>TechNo Core</span>
       </div>
     </div>
