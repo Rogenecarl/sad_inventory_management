@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['createCat'])) {
     ]);
 
     if ($stmt->rowCount() > 0) {
-        header("Location: ../pages/category.php?message=Error: Category name already exists");
+        header("Location: ../pages/category.php?message=Error: Category name already exists&message_type=error");
         exit();
     }
 
@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['createCat'])) {
             ':description' => $description  // Will be NULL if not provided
         ]);
 
-        header("Location: ../pages/category.php?message=Category created successfully");
+        header("Location: ../pages/category.php?message=Category created successfully&message_type=success");
         exit();
     } catch (PDOException $e) {
         die("Error: " . $e->getMessage());
@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['updateCat'])) {
     ]);
 
     if ($stmt->rowCount() > 0) {
-        header("Location: ../pages/category.php?message=Error: Category name already exists");
+        header("Location: ../pages/category.php?message=Error: Category name already exists&message_type=error");
         exit();
     }
 
@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['updateCat'])) {
             ':catId' => $catId
         ]);
 
-        header("Location: ../pages/category.php?message=Category updated successfully");
+        header("Location: ../pages/category.php?message=Category updated successfully&message_type=success");
         exit();
     } catch (PDOException $e) {
         die("Error: " . $e->getMessage());
@@ -78,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['catId'])) {
         $stmt = $conn->prepare("DELETE FROM categories WHERE category_id = :catId");
         $stmt->execute([':catId' => $catId]);
 
-        header("Location: ../pages/category.php?message=User deleted successfully");
+        header("Location: ../pages/category.php?message=User deleted successfully&message_type=success");
         exit();
 
     } catch (PDOException $e) {

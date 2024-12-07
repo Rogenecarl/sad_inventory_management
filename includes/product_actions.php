@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['addproduct'])) {
         ]);
 
         // Redirect to the products page with a success message
-        header("Location: ../pages/products.php?message=Product created successfully");
+        header("Location: ../pages/products.php?message=Product created successfully&message_type=success");
         exit();
     } catch (PDOException $e) {
         // If an error occurs, and a photo was uploaded, remove the photo file
@@ -146,7 +146,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['updateproduct']) && i
         ");
         $stmtUpdate->execute($params);
 
-        header("Location: ../pages/products.php?message=Product updated successfully");
+        header("Location: ../pages/products.php?message=Product updated successfully&message_type=success");
         exit();
     } catch (PDOException $e) {
         if ($photoName && $photoName !== $previousPhoto) {
@@ -187,7 +187,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['proId'])) {
         $stmt = $conn->prepare("DELETE FROM products WHERE prod_id = :proId");
         $stmt->execute([':proId' => $proId]);
 
-        header("Location: ../pages/products.php?message=Product deleted successfully");
+        header("Location: ../pages/products.php?message=Product deleted successfully&message_type=success");
         exit();
     } catch (PDOException $e) {
         die("Error: " . $e->getMessage());

@@ -49,7 +49,7 @@
             <a href="print_products.php"
               class="sidebar__link <?= ($currentPage == 'print_products') ? 'active-link' : '' ?>">
               <i class="ri-printer-line"></i> <!-- Print Products Icon -->
-              <span>List</span>
+              <span>Stock Levels</span>
             </a>
           </div>
 

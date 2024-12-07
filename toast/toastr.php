@@ -1,5 +1,7 @@
-document.addEventListener("DOMContentLoaded", function () {
-    if (message) {
+<?php
+// Check if $message and $message_type are set before including this file
+if (!empty($message)): ?>
+    <script type="text/javascript">
         toastr.options = {
             "closeButton": true,
             "debug": false,
@@ -16,6 +18,11 @@ document.addEventListener("DOMContentLoaded", function () {
             "showMethod": "fadeIn",
             "hideMethod": "fadeOut"
         };
-        toastr[messageType](message);
-    }
-});
+
+        <?php if ($message_type == 'success'): ?>
+            toastr.success('<?php echo addslashes($message); ?>', 'Success');
+        <?php elseif ($message_type == 'error'): ?>
+            toastr.error('<?php echo addslashes($message); ?>', 'Error');
+        <?php endif; ?>
+    </script>
+<?php endif; ?>

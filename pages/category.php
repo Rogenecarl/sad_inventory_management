@@ -32,8 +32,11 @@ $stmt->bindValue(':limit', $itemsPerPage, PDO::PARAM_INT);
 $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
 $stmt->execute();
 $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
-?>
 
+$message = isset($_GET['message']) ? $_GET['message'] : '';
+$message_type = isset($_GET['message_type']) ? $_GET['message_type'] : '';
+?>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 <link rel="stylesheet" href="../lib/category/category.css">
 
 <main class="main container" id="main">
@@ -242,6 +245,10 @@ while ($row = $stmt->fetch()) {
     </div>
 <?php } ?>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<?php include '../toast/toastr.php'; ?>
 
 <script src="../lib/category/category.js"></script>
 </body>

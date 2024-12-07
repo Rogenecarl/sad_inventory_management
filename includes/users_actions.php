@@ -1,6 +1,7 @@
 <?php
 require_once 'load.php';
 
+//this is the toastr
 // Add user
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['createUser'])) {
     $name = $_POST['name'];
@@ -18,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['createUser'])) {
     ]);
 
     if ($stmt->rowCount() > 0) {
-        header("Location: ../pages/user_management.php?message=Error: Name and Username combination already exists");
+        header("Location: ../pages/user_management.php?message=Error: Name and Username combination already exists&message_type=error");
         exit();
     }
 
@@ -33,14 +34,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['createUser'])) {
             ':status' => $status,
         ]);
 
-        header("Location: ../pages/user_management.php?message=User created successfully");
+        header("Location: ../pages/user_management.php?message=User created successfully&message_type=success");
         exit();
     } catch (PDOException $e) {
         die("Error: " . $e->getMessage());
     }
 }
-
-
 
 // Update user
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['updateUser'])) {
@@ -58,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['updateUser'])) {
     ]);
 
     if ($stmt->rowCount() > 0) {
-        header("Location: ../pages/user_management.php?message=Error: Name and Username combination already exists");
+        header("Location: ../pages/user_management.php?message=Error: Name and Username combination already exists&message_type=error");
         exit();
     }
 
@@ -85,13 +84,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['updateUser'])) {
         ]);
     }
 
-    header("Location: ../pages/user_management.php?message=User updated successfully");
+    header("Location: ../pages/user_management.php?message=User updated successfully&message_type=success");
     exit();
 }
 
-
-
-//delete users
+// Delete user
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['userId'])) {
     $userId = $_GET['userId'];
 
@@ -99,7 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['userId'])) {
         $stmt = $conn->prepare("DELETE FROM users WHERE User_id = :userId");
         $stmt->execute([':userId' => $userId]);
 
-        header("Location: ../pages/user_management.php?message=User deleted successfully");
+        header("Location: ../pages/user_management.php?message=User deleted successfully&message_type=success");
         exit();
     } catch (PDOException $e) {
         die("Error: " . $e->getMessage());

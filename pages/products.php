@@ -32,8 +32,12 @@ $stmt->execute();
 
 // Prepare category fetch query
 $categoryStmt = $conn->prepare("SELECT name FROM categories WHERE category_id = ?");
+
+$message = isset($_GET['message']) ? $_GET['message'] : '';
+$message_type = isset($_GET['message_type']) ? $_GET['message_type'] : '';
 ?>
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 <link rel="stylesheet" href="../lib/products/products.css">
 
 <main class="main container" id="main">
@@ -415,6 +419,12 @@ while ($row = $stmt->fetch()) {
     </div>
 <?php } ?>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+
+
+<?php include '../toast/toastr.php'; ?>
 <script src="../lib/products/products.js"></script>
 </body>
 

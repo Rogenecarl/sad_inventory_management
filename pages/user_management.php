@@ -41,7 +41,13 @@ $users = $query->fetchAll(PDO::FETCH_ASSOC);
 // User roles and statuses
 $user_levels = [1 => 'Developer', 2 => 'Admin', 3 => 'Staff'];
 $statuses = [1 => 'Active', 0 => 'Inactive'];
+
+$message = isset($_GET['message']) ? $_GET['message'] : '';
+$message_type = isset($_GET['message_type']) ? $_GET['message_type'] : '';
+
 ?>
+<!-- Include toastr CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 <link rel="stylesheet" href="../lib/usermanagement/userstyle.css">
 
 <main class="main container" id="main">
@@ -309,6 +315,14 @@ while ($row = $stmt->fetch()) {
         </div>
     </div>
 <?php } ?>
+
+<!-- Include toastr JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+
+
+<?php include '../toast/toastr.php'; ?>
 
 <script src="../lib/usermanagement/userscript.js"></script>
 </body>

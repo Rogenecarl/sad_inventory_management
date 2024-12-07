@@ -9,12 +9,12 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
 $stmt = $conn->prepare("SELECT category_id, name, created_at FROM categories");
 $stmt->execute();
 $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
-?>
-<!-- Toastr CSS -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet">
-<!-- Toastr JS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 
+$message = "Purchase confirmed!";
+$message_type = "success";
+?>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 <link rel="stylesheet" href="../lib/addsales/addsales.css">
 
 <main class="main container" id="main">
@@ -110,7 +110,8 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="confirm-purchase-action">Confirm</button>
+                <button type="button" class="btn btn-primary" id="confirm-purchase-action"
+                    data-bs-dismiss="modal">Confirm</button>
             </div>
         </div>
     </div>
@@ -244,17 +245,22 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
             body: JSON.stringify({ sales: salesData })
         })
             .then(() => {
-                alert("Purchase confirmed!");
+                toastr.success("Purchase confirmed!", "Success");
                 // Optionally, reset sales data and table
                 salesData.length = 0;
                 renderSalesTable();
             });
+
     });
 
 </script>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
 
+
+<?php include '../toast/toastr.php'; ?>
 
 <script src="../lib/addsales/addsales.js"></script>
 </body>
