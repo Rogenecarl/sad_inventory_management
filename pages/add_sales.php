@@ -10,6 +10,10 @@ $stmt = $conn->prepare("SELECT category_id, name, created_at FROM categories");
 $stmt->execute();
 $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
+<!-- Toastr CSS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet">
+<!-- Toastr JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 
 <link rel="stylesheet" href="../lib/addsales/addsales.css">
 
@@ -32,7 +36,8 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <p>No categories found.</p>
                     <?php else: ?>
                         <?php foreach ($categories as $category): ?>
-                            <div class="card card-body m-2 card-highlight" style="width: 18rem;" onclick="loadCategoryProducts(<?= $category['category_id'] ?>)">
+                            <div class="card card-body m-2 card-highlight" style="width: 18rem;"
+                                onclick="loadCategoryProducts(<?= $category['category_id'] ?>)">
                                 <h5 class="card-title"><?= htmlspecialchars($category['name']) ?></h5>
                                 <p class="card-text"><?= date('F j, Y', strtotime($category['created_at'])) ?></p>
                             </div>
@@ -81,7 +86,8 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </table>
                         <div class="text-end">
                             <h3 id="grand-total">Grand Total: ₱0.00</h3>
-                            <button class="btn btn-primary" id="confirm-purchase-btn" data-bs-toggle="modal" data-bs-target="#confirmPurchaseModal">Confirm Purchase</button>
+                            <button class="btn btn-primary" id="confirm-purchase-btn" data-bs-toggle="modal"
+                                data-bs-target="#confirmPurchaseModal">Confirm Purchase</button>
                         </div>
                     </div>
                 </div>
@@ -91,22 +97,23 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </main>
 
 <!-- Confirm Purchase Modal -->
-<div class="modal fade" id="confirmPurchaseModal" tabindex="-1" aria-labelledby="confirmPurchaseModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="confirmPurchaseModalLabel">Confirm Purchase</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        Are you sure you want to confirm this purchase? This action cannot be undone.
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" id="confirm-purchase-action">Confirm</button>
-      </div>
+<div class="modal fade" id="confirmPurchaseModal" tabindex="-1" aria-labelledby="confirmPurchaseModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmPurchaseModalLabel">Confirm Purchase</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to confirm this purchase? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="confirm-purchase-action">Confirm</button>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
 <script src="../lib/addsales/addsales.js"></script>
@@ -142,6 +149,13 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
             const productId = e.target.dataset.id;
             const productName = e.target.dataset.name;
             const productPrice = parseFloat(e.target.dataset.price);
+            const productStock = parseInt(e.target.closest('tr').querySelector('td:nth-child(6)').textContent);  // Assuming the stock is in the 6th column (adjust if necessary)
+
+            // Check if the stock is zero
+            if (productStock === 0) {
+                toastr.error(`${productName} with zero stock cannot be added.`);
+                return;
+            }
 
             const existing = salesData.find(p => p.id === productId);
             if (existing) existing.quantity++;
@@ -151,6 +165,36 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
     });
 
+    // Event listener for quantity changes
+    document.querySelector("#sales-table-body").addEventListener("input", (event) => {
+        if (event.target.classList.contains("quantity-input")) {
+            const productId = event.target.getAttribute("data-id");
+            const newQuantity = parseInt(event.target.value);
+
+            // Find the corresponding product in salesData
+            const product = salesData.find(p => p.id == productId);
+
+            if (product) {
+                const productStock = parseInt(event.target.closest('tr').querySelector('td:nth-child(6)').textContent);  // Get the stock of the product
+
+                // Prevent the quantity from exceeding the available stock
+                if (newQuantity > productStock) {
+                    toastr.warning(`There are only ${productStock} stock(s) available for ${product.name}.`);
+                    event.target.value = productStock; // Reset the quantity field to the available stock
+                    product.quantity = productStock; // Update salesData quantity
+                } else {
+                    // Update the salesData with the new quantity
+                    product.quantity = newQuantity;
+                }
+
+                // Re-render the sales table
+                renderSalesTable();
+            }
+        }
+    });
+
+
+
     function renderSalesTable() {
         const tableBody = document.querySelector("#sales-table-body");
         tableBody.innerHTML = "";
@@ -159,33 +203,54 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
             const totalCost = p.price * p.quantity;
             total += totalCost;
             tableBody.innerHTML += `
-                <tr>
-                    <td>${i + 1}</td>
-                    <td>${p.name}</td>
-                    <td>${p.quantity}</td>
-                    <td>${p.price}</td>
-                    <td>${totalCost}</td>
-                    <td>
-                        <button class="btn btn-danger remove-btn" data-id="${p.id}">Remove</button>
-                    </td>
-                </tr>`;
+            <tr>
+                <td>${i + 1}</td>
+                <td>${p.name}</td>
+                <td>
+                    <input type="number" class="quantity-input" value="${p.quantity}" data-id="${p.id}" min="1" />
+                </td>
+                <td>${p.price}</td>
+                <td>${totalCost}</td>
+                <td>
+                    <button class="btn btn-danger remove-btn" data-id="${p.id}">Remove</button>
+                </td>
+            </tr>`;
         });
         document.getElementById("grand-total").textContent = `Grand Total: ₱${total}`;
     }
 
+    // Event listener for quantity changes
+    document.querySelector("#sales-table-body").addEventListener("input", (event) => {
+        if (event.target.classList.contains("quantity-input")) {
+            const productId = event.target.getAttribute("data-id");
+            const newQuantity = parseInt(event.target.value);
+
+            // Update salesData with the new quantity
+            const product = salesData.find(p => p.id == productId);
+            if (product) {
+                product.quantity = newQuantity;
+            }
+
+            // Re-render the sales table with the updated quantities
+            renderSalesTable();
+        }
+    });
+
+    // Confirm purchase action
     document.getElementById("confirm-purchase-action").addEventListener("click", () => {
         fetch("../includes/addsales_functions.php", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ sales: salesData })
         })
-        .then(() => {
-            alert("Purchase confirmed!");
-            // Optionally, reset sales data and table
-            salesData.length = 0;
-            renderSalesTable();
-        });
+            .then(() => {
+                alert("Purchase confirmed!");
+                // Optionally, reset sales data and table
+                salesData.length = 0;
+                renderSalesTable();
+            });
     });
+
 </script>
 
 

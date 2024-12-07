@@ -14,6 +14,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Loop through the sales data and insert into the sales table
             foreach ($salesData['sales'] as $sale) {
+                // Check if the requested quantity is available in stock
+                $stmt = $conn->prepare("SELECT quantity FROM products WHERE prod_id = :product_id");
+                $stmt->bindParam(':product_id', $sale['id'], PDO::PARAM_INT);
+                $stmt->execute();
+                $product = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                // If product doesn't exist or stock is insufficient, return an error
+                if (!$product || $product['quantity'] < $sale['quantity']) {
+                    echo json_encode([
+                        'status' => 'error',
+                        'message' => "Insufficient stock for product ID {$sale['id']}. Available stock is {$product['quantity']}."
+                    ]);
+                    // Rollback the transaction and exit
+                    $conn->rollBack();
+                    exit;
+                }
+
                 // Prepare the insert statement for sales
                 $stmt = $conn->prepare("INSERT INTO sales (product_id, qty, total_price, date) VALUES (:product_id, :qty, :total_price, CURDATE())");
 
