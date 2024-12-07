@@ -4,7 +4,9 @@ require_once 'load.php';
 // Add category
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['createCat'])) {
     $name = $_POST['name'];
+    $description = !empty($_POST['description']) ? $_POST['description'] : null;  // Set description to NULL if empty
 
+    // Check if category name already exists
     $stmt = $conn->prepare("SELECT * FROM categories WHERE name = :name");
     $stmt->execute([
         ':name' => $name
@@ -16,9 +18,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['createCat'])) {
     }
 
     try {
-        $stmt = $conn->prepare("INSERT INTO categories (name, created_at) VALUES (:name, NOW())");
+        // Insert new category with optional description
+        $stmt = $conn->prepare("INSERT INTO categories (name, description, created_at) VALUES (:name, :description, NOW())");
         $stmt->execute([
             ':name' => $name,
+            ':description' => $description  // Will be NULL if not provided
         ]);
 
         header("Location: ../pages/category.php?message=Category created successfully");
@@ -33,7 +37,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['createCat'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['updateCat'])) {
     $catId = $_GET['catId'];
     $name = $_POST['name'];
+    $description = !empty($_POST['description']) ? $_POST['description'] : null;  // Set description to NULL if empty
 
+    // Check if category name already exists (excluding current category)
     $stmt = $conn->prepare("SELECT * FROM categories WHERE name = :name AND category_id != :catId");
     $stmt->execute([
         ':name' => $name,
@@ -46,9 +52,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['updateCat'])) {
     }
 
     try {
-        $stmt = $conn->prepare("UPDATE categories SET name = :name WHERE category_id = :catId");
+        // Update category with new name and optional description
+        $stmt = $conn->prepare("UPDATE categories SET name = :name, description = :description WHERE category_id = :catId");
         $stmt->execute([
             ':name' => $name,
+            ':description' => $description,  // Will be NULL if not provided
             ':catId' => $catId
         ]);
 
@@ -58,6 +66,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['updateCat'])) {
         die("Error: " . $e->getMessage());
     }
 }
+
+
 
 
 //delete category

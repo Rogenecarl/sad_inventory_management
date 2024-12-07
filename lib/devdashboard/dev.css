@@ -1,4 +1,6 @@
-.card-highlight {
+
+.card {
+    border: none;
     background-color: #ffffff;
     border: 1px solid #ddd;
     border-radius: 10px;
@@ -6,37 +8,84 @@
     transition: transform 0.3s;
 }
 
-.card-highlight:hover {
-    transform: scale(1.05);
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 12px rgba(27, 26, 26, 0.15);
 }
 
-/* Center the chart within its container */
-#salesBarChart {
-    display: block;
-    margin: 0 auto;
-    height: 400px;
-}
-
-/* Adjust card styles for centering */
-.card {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.card-highlight {
+    width: 12rem;
     text-align: center;
-}
-
-.chartjs-legend {
-    justify-content: center;
-    align-items: center;
-}
-
-.table {
-    margin-top: 10px;
+    background-color: #ffffff;
     border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
 }
 
-.table th {
-    background-color: #007bff;
-    color: white;
-    text-align: left;
+.card-title {
+    font-weight: 600;
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.card-text {
+    font-size: 1.1rem;
+    color: #555;
+}
+
+.icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.statistics-card {
+    flex-grow: 1;
+    width: 24.4rem;
+}
+
+.list-group-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem 1rem;
+    border: none;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.list-group-item:last-child {
+    border-bottom: none;
+}
+
+.text-primary {
+    color: #007bff !important;
+}
+
+.text-warning {
+    color: #ffc107 !important;
+}
+
+.text-success {
+    color: #28a745 !important;
+}
+
+.text-danger {
+    color: #dc3545 !important;
+}
+
+.main__container {
+    width: 100%;
+    height: 79.6vh;
+    display: flex;
+    flex-direction: column;
+    border-radius: 5px;
+    padding: 5px;
+    overflow-y: auto;
+    scrollbar-width: none; /* add this line */
+    -ms-overflow-style: none; /* add this line for IE and Edge */
+}
+
+/* add this CSS rule to hide the scrollbar in WebKit-based browsers */
+.main__container::-webkit-scrollbar {
+    display: none;
 }

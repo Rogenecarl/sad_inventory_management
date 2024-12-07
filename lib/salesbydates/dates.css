@@ -1,0 +1,38 @@
+.main__container {
+    margin-bottom: 68vh;
+    padding: 20px;
+}
+
+.date-picker-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: center;
+}
+
+.date-picker-form label {
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+.date-picker-form input[type="date"] {
+    padding: 5px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.generate-btn {
+    padding: 10px 15px;
+    font-size: 16px;
+    color: #fff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.generate-btn:hover {
+    background-color: #0056b3;
+}

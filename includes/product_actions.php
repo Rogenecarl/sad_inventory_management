@@ -54,71 +54,112 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['addproduct'])) {
     }
 }
 
-
-// update Product
+// Update product
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['updateproduct']) && isset($_GET['proId'])) {
     $proId = $_GET['proId'];
-    $prodname = $_POST['prodname'];
-    $prodbrand = $_POST['prodbrand'];
-    $prodmodel = $_POST['prodmodel'];
-    $prodquan = $_POST['prodquan'];
-    $prodprice = $_POST['prodprice'];
-
-    // Check the file input
-    var_dump($_FILES['productPhoto']); // For debugging: check the uploaded file info
-    var_dump($_POST); // For debugging: check the POST data
+    $prodname = $_POST['prodname'] ?? null; // New product name
+    $prodbrand = $_POST['prodbrand'] ?? null; // New brand
+    $prodmodel = $_POST['prodmodel'] ?? null; // New model
+    $prodquan = isset($_POST['prodquan']) && is_numeric($_POST['prodquan']) ? (int) $_POST['prodquan'] : 0; // Quantity
+    $prodprice = $_POST['prodprice'] ?? null; // Updated price
+    $remarks = $_POST['remarks'] ?? null; // Remarks
+    $photoName = null;
 
     try {
-        // Fetch the current product photo from the database
-        $stmt = $conn->prepare("SELECT photo FROM products WHERE prod_id = :proId");
+        // Fetch the current product details
+        $stmt = $conn->prepare("SELECT prod_id, quantity, sale_price, photo FROM products WHERE prod_id = :proId");
         $stmt->execute([':proId' => $proId]);
         $product = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$product) {
-            die("Error: Product not found.");
+            die("Product not found.");
         }
 
-        // Keep the existing photo if no new one is uploaded
-        $photoName = $product['photo'];
+        $previousStock = is_numeric($product['quantity']) ? (int) $product['quantity'] : 0;
+        $previousPrice = $product['sale_price'];
+        $previousPhoto = $product['photo'];
+        $newStock = $previousStock + $prodquan;
+
+        // Handle photo upload
         if (isset($_FILES['productPhoto']) && $_FILES['productPhoto']['error'] === UPLOAD_ERR_OK) {
             $photo = $_FILES['productPhoto'];
             $photoName = time() . '_' . basename($photo['name']);
             $photoPath = $uploadDir . $photoName;
 
-            // Move the uploaded file to the correct directory
-            if (move_uploaded_file($photo['tmp_name'], $photoPath)) {
-                // Delete the old photo if it exists
-                $oldPhotoPath = $uploadDir . $product['photo'];
-                if ($product['photo'] && file_exists($oldPhotoPath)) {
-                    unlink($oldPhotoPath);
-                }
-            } else {
-                die("Error: Unable to upload new photo.");
+            if (!move_uploaded_file($photo['tmp_name'], $photoPath)) {
+                die("Error: Unable to upload photo.");
             }
+
+            if (!empty($previousPhoto) && file_exists($uploadDir . $previousPhoto)) {
+                unlink($uploadDir . $previousPhoto);
+            }
+        } else {
+            $photoName = $previousPhoto;
         }
 
-        // Update the product in the database
-        $stmt = $conn->prepare("UPDATE products 
-                                SET name = :name, prod_brand = :brand, prod_model = :model, 
-                                    quantity = :quantity, sale_price = :price, photo = :photo 
-                                WHERE prod_id = :proId");
-        $stmt->execute([
-            ':name' => $prodname,
-            ':brand' => $prodbrand,
-            ':model' => $prodmodel,
-            ':quantity' => $prodquan,
-            ':price' => $prodprice,
-            ':photo' => $photoName,
-            ':proId' => $proId,
-        ]);
+        // Update StockHistory if price changes or stock is not zero
+        if (($prodprice !== null && $prodprice != $previousPrice) || $prodquan !== 0) {
+            $stmtHistory = $conn->prepare("
+                INSERT INTO StockHistory (prod_id, quantity_added, previous_stock, new_stock, price, created_at, remarks)
+                VALUES (:prod_id, :quantity_added, :previous_stock, :new_stock, :price, NOW(), :remarks)
+            ");
+            $stmtHistory->execute([
+                ':prod_id' => $proId,
+                ':quantity_added' => $prodquan,
+                ':previous_stock' => $previousStock,
+                ':new_stock' => $newStock,
+                ':price' => $prodprice ?? $previousPrice,
+                ':remarks' => $remarks,
+            ]);
+        }
 
-        // Redirect to products page with success message
+        // Update product details
+        $updateFields = [
+            'photo = :photo',
+            'updated_at = NOW()',
+            'name = :prodname',
+            'prod_brand = :prodbrand',
+            'prod_model = :prodmodel'
+        ];
+        $params = [
+            ':photo' => $photoName,
+            ':prodname' => $prodname,
+            ':prodbrand' => $prodbrand,
+            ':prodmodel' => $prodmodel,
+            ':proId' => $proId,
+        ];
+
+        if (!is_null($prodquan)) {
+            $updateFields[] = 'quantity = :newStock';
+            $params[':newStock'] = $newStock;
+        }
+
+        if (!is_null($prodprice)) {
+            $updateFields[] = 'sale_price = :newPrice';
+            $params[':newPrice'] = $prodprice;
+        }
+
+        $stmtUpdate = $conn->prepare("
+            UPDATE products
+            SET " . implode(', ', $updateFields) . "
+            WHERE prod_id = :proId
+        ");
+        $stmtUpdate->execute($params);
+
         header("Location: ../pages/products.php?message=Product updated successfully");
         exit();
     } catch (PDOException $e) {
+        if ($photoName && $photoName !== $previousPhoto) {
+            unlink($uploadDir . $photoName);
+        }
         die("Error: " . $e->getMessage());
     }
 }
+
+
+
+
+
 
 
 // Delete Product
@@ -126,6 +167,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['proId'])) {
     $proId = $_GET['proId'];
 
     try {
+        // Fetch and delete the product's photo
         $stmt = $conn->prepare("SELECT photo FROM products WHERE prod_id = :proId");
         $stmt->execute([':proId' => $proId]);
         $product = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -137,7 +179,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['proId'])) {
             }
         }
 
+        // Delete related stock history entries
+        $stmt = $conn->prepare("DELETE FROM StockHistory WHERE prod_id = :proId");
+        $stmt->execute([':proId' => $proId]);
 
+        // Delete the product
         $stmt = $conn->prepare("DELETE FROM products WHERE prod_id = :proId");
         $stmt->execute([':proId' => $proId]);
 
@@ -147,4 +193,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['proId'])) {
         die("Error: " . $e->getMessage());
     }
 }
-?>

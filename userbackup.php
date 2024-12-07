@@ -1,166 +1,203 @@
 <?php
 include('../layouts/header.php');
 require_once '../includes/load.php';
+
 require_login();
-
-// Fetch total number of users
-$totalUsersStmt = $conn->prepare("SELECT COUNT(*) AS total_users FROM users");
-$totalUsersStmt->execute();
-$totalUsers = $totalUsersStmt->fetch(PDO::FETCH_ASSOC)['total_users'];
-
-// Fetch total number of categories
-$totalCategoriesStmt = $conn->prepare("SELECT COUNT(*) AS total_categories FROM categories");
-$totalCategoriesStmt->execute();
-$totalCategories = $totalCategoriesStmt->fetch(PDO::FETCH_ASSOC)['total_categories'];
-
-// Fetch total number of products
-$totalProductsStmt = $conn->prepare("SELECT COUNT(*) AS total_products FROM products");
-$totalProductsStmt->execute();
-$totalProducts = $totalProductsStmt->fetch(PDO::FETCH_ASSOC)['total_products'];
-
-// Fetch total sales
-$totalSalesStmt = $conn->prepare("SELECT SUM(total_price) AS total_sales FROM sales");
-$totalSalesStmt->execute();
-$totalSales = $totalSalesStmt->fetch(PDO::FETCH_ASSOC)['total_sales'];
-
-// Fetch highest selling products for the chart
-$highestSellingStmt = $conn->prepare("
-    SELECT p.name, SUM(s.qty) AS total_quantity
-    FROM sales s
-    JOIN products p ON s.product_id = p.prod_id
-    GROUP BY s.product_id
-    ORDER BY total_quantity DESC
-");
-$highestSellingStmt->execute();
-$highestSellingProducts = $highestSellingStmt->fetchAll(PDO::FETCH_ASSOC);
-
-// Fetch latest sales for the table
-$latestSalesStmt = $conn->prepare("
-    SELECT s.sales_id, p.name AS product_name, s.date, s.total_price
-    FROM sales s
-    JOIN products p ON s.product_id = p.prod_id
-    ORDER BY s.date DESC
-    LIMIT 5
-");
-$latestSalesStmt->execute();
-$latestSales = $latestSalesStmt->fetchAll(PDO::FETCH_ASSOC);
-
-// Fetch recently added products
-$recentProductsStmt = $conn->prepare("
-    SELECT name, sale_price
-    FROM products
-    ORDER BY created_at DESC
-    LIMIT 5
-");
-$recentProductsStmt->execute();
-$recentProducts = $recentProductsStmt->fetchAll(PDO::FETCH_ASSOC);
+$currentPage = basename($_SERVER['PHP_SELF'], '.php');
 ?>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<link rel="stylesheet" href="../lib/devdashboard/dev.css">
+<link rel="stylesheet" href="../lib/category/category.css">
 
 <main class="main container" id="main">
     <?php include('../layouts/sidebar.php'); ?>
 
-    <h1 class="dash-fix">Dashboard</h1>
-    <div class="main__container">
-        <!-- Cards Section -->
-        <div class="d-flex flex-row flex-wrap justify-content-between mb-3">
-            <div class="card text-center card-highlight" style="width: 18rem;">
-                <div class="card-body">
-                    <i class="fa fa-users fa-2x mb-3 text-primary"></i>
-                    <h5 class="card-title">Total Users</h5>
-                    <p class="card-text"><?php echo $totalUsers; ?></p>
+    <div class="table-wrapper">
+        <div class="table-title">
+            <div class="d-flex justify-content-between">
+                <div class="col-sm-4">
+                    <h2>Categories</h2>
                 </div>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createCatModal">
+                    <i class="fa fa-plus-circle"></i>
+                    Add Category
+                </button>
             </div>
-            <div class="card text-center card-highlight" style="width: 18rem;">
-                <div class="card-body">
-                    <i class="fa fa-tags fa-2x mb-3 text-warning"></i>
-                    <h5 class="card-title">Total Categories</h5>
-                    <p class="card-text"><?php echo $totalCategories; ?></p>
+        </div>
+        <div class="table-filter">
+            <div class="row">
+                <div class="col-sm-3">
+                    <div class="show-entries">
+                        <span>Show</span>
+                        <select class="form-control">
+                            <option>5</option>
+                            <option>10</option>
+                            <option>15</option>
+                            <option>20</option>
+                        </select>
+                        <span>entries</span>
+                    </div>
                 </div>
-            </div>
-            <div class="card text-center card-highlight" style="width: 18rem;">
-                <div class="card-body">
-                    <i class="fa fa-boxes fa-2x mb-3 text-success"></i>
-                    <h5 class="card-title">Total Products</h5>
-                    <p class="card-text"><?php echo $totalProducts; ?></p>
-                </div>
-            </div>
-            <div class="card text-center card-highlight" style="width: 18rem;">
-                <div class="card-body">
-                    <i class="fa fa-dollar-sign fa-2x mb-3 text-danger"></i>
-                    <h5 class="card-title">Total Sales</h5>
-                    <p class="card-text">$<?php echo number_format($totalSales, 2); ?></p>
+                <div class="col-sm-9">
+                    <button type="button" class="btn btn-primary"><i class="fa fa-search"></i></button>
+                    <div class="filter-group">
+                        <label>Name</label>
+                        <input type="text" class="form-control">
+                    </div>
+                    <div class="filter-group">
+                        <label>Price</label>
+                        <select class="form-control">
+                            <option>Highest</option>
+                            <option>Lowest</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Model</label>
+                        <select class="form-control">
+                            <option>Any</option>
+                            <option>Delivered</option>
+                            <option>Shipped</option>
+                            <option>Pending</option>
+                            <option>Cancelled</option>
+                        </select>
+                    </div>
+                    <span class="filter-icon"><i class="fa fa-filter"></i></span>
                 </div>
             </div>
         </div>
+        <table class="table table-striped table-hover" style="text-align: center; vertical-align: middle;">
+            <thead>
+                <tr>
+                    <th class="text-center">#</th>
+                    <th>Name</th>
+                    <th>Created At</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                $stmt = $conn->query("SELECT category_id, name, created_at FROM categories");
 
-        <!-- Bar Chart and Table Section -->
-        <div class="d-flex flex-row flex-wrap justify-content-between">
-            <div class="card p-2 flex-fill" style="width: 24.4rem;">
-                <div class="card-body">
-                    <h5 class="card-title">Highest Selling Products</h5>
-                    <canvas id="salesBarChart"></canvas>
-                </div>
+                $counter = 1;
+                while ($row = $stmt->fetch()) {
+                    $createdAt = date_create($row['created_at']);
+                    ?>
+                    <tr>
+                        <td class="text-center"><?= $counter++ ?></td>
+                        <td><?= htmlspecialchars($row['name']) ?></td>
+                        <td class="text-center"><?= date_format($createdAt, 'F j, Y, g:i:s a') ?></td>
+                        <td class="text-center d-flex justify-content-center gap-2">
+                            <button type="button" class="editCat-btn btn-secondary" data-bs-toggle="modal"
+                                data-bs-target="#editCatModal_<?= $row['category_id'] ?>">
+                                <i class="ri-pencil-line"></i>
+                            </button>
+                            <button type="button" class="deleteCat-btn btn-danger" data-bs-toggle="modal"
+                                data-bs-target="#deleteCatModal_<?= $row['category_id'] ?>">
+                                <i class="ri-delete-bin-line"></i>
+                            </button>
+                        </td>
+                    </tr>
+                <?php } ?>
+            </tbody>
+        </table>
+        <div class="clearfix">
+            <div class="hint-text">Showing <b>5</b> out of <b>25</b> entries</div>
+            <ul class="pagination">
+                <li class="page-item disabled"><a href="#">Previous</a></li>
+                <li class="page-item"><a href="#" class="page-link">1</a></li>
+                <li class="page-item"><a href="#" class="page-link">2</a></li>
+                <li class="page-item"><a href="#" class="page-link">3</a></li>
+                <li class="page-item active"><a href="#" class="page-link">4</a></li>
+                <li class="page-item"><a href="#" class="page-link">5</a></li>
+                <li class="page-item"><a href="#" class="page-link">6</a></li>
+                <li class="page-item"><a href="#" class="page-link">7</a></li>
+                <li class="page-item"><a href="#" class="page-link">Next</a></li>
+            </ul>
+        </div>
+    </div>
+
+</main>
+
+<!-- Create User Modal -->
+<div class="modal fade" tabindex="-1" role="dialog" id="createCatModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create Category</h5>
             </div>
-            <div class="card" style="width: 24.4rem;">
-                <div class="card-body">
-                    <h5 class="card-title">Latest Sales</h5>
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Product Name</th>
-                                <th>Date</th>
-                                <th>Total Sales</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($latestSales as $sale): ?>
-                                <tr>
-                                    <td><?php echo $sale['sales_id']; ?></td>
-                                    <td><?php echo $sale['product_name']; ?></td>
-                                    <td><?php echo $sale['date']; ?></td>
-                                    <td>$<?php echo number_format($sale['total_price'], 2); ?></td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
+
+            <form action="../includes/category_actions.php" method="post">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="" class="form-label">Name</label>
+                        <input type="text" class="form-control" name="name" id="name" required>
+                    </div>
                 </div>
+                <div class="modal-footer">
+                    <button type="submit" name="createCat" id="createCat" class="btn btn-primary">Add</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<!-- Edit User Modal -->
+<?php
+$stmt = $conn->query("SELECT category_id, name, created_at FROM categories");
+
+$counter = 1;
+while ($row = $stmt->fetch()) {
+    $createdAt = date_create($row['created_at']);
+    ?>
+    <div class="modal fade" tabindex="-1" role="dialog" id="editCatModal_<?= $row['category_id'] ?>">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Category - <?= htmlspecialchars($row['name']) ?></h5>
+                </div>
+
+                <form action="../includes/category_actions.php?catId=<?= $row['category_id'] ?>" method="post">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="" class="form-label">Name</label>
+                            <input type="text" class="form-control" name="name" id="name"
+                                value="<?= htmlspecialchars($row['name']) ?>" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" name="updateCat" id="updateCat" class="btn btn-primary">Save Changes</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-</main>
 
-<script>
-    const ctx = document.getElementById('salesBarChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: <?php echo json_encode(array_column($highestSellingProducts, 'name')); ?>,
-            datasets: [{
-                label: 'Quantity Sold',
-                data: <?php echo json_encode(array_column($highestSellingProducts, 'total_quantity')); ?>,
-                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { display: false }
-            },
-            scales: {
-                x: { title: { display: true, text: 'Products' } },
-                y: { title: { display: true, text: 'Quantity Sold' } }
-            }
-        }
-    });
-</script>
+    <!-- Delete User Modal -->
+    <div class="modal fade" tabindex="-1" role="dialog" id="deleteCatModal_<?= $row['category_id'] ?>">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete Category - <?= htmlspecialchars($row['name']) ?></h5>
+                </div>
+                <form action="../includes/category_actions.php?catId=<?= $row['category_id'] ?>" method="post">
+                    <div class="modal-body">
+                        <p>Are you sure you want to delete <?= htmlspecialchars($row['name']) ?>?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" name="deleteCat" id="deleteCat" class="btn btn-danger">Delete</button>
 
-<script src="../lib/devdashboard/dev.js"></script>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+<?php } ?>
+
+
+<script src="../lib/category/category.js"></script>
 </body>
 
 </html>

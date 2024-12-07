@@ -5,54 +5,10 @@ require_once '../includes/load.php';
 require_login();
 $currentPage = basename($_SERVER['PHP_SELF'], '.php');
 
-// Handle search input from the query parameter
-$searchTerm = isset($_GET['ProductSearch']) ? trim($_GET['ProductSearch']) : '';
-
-// Handle quantity updates from query parameters
-$quantities = isset($_GET['quantity']) ? $_GET['quantity'] : [];
-
-global $conn;
-
-if (isset($_GET['addSale'])) {
-    $productId = key($_GET['addSale']); 
-    $quantity = intval($_GET['quantity'][$productId]); 
-    $saleDate = $_GET['sale_date'][$productId];
-
-    $stmt = $conn->prepare("SELECT quantity, sale_price FROM products WHERE prod_id = ?");
-    $stmt->execute([$productId]);
-    $product = $stmt->fetch();
-
-    if ($product) {
-        $currentQuantity = intval($product['quantity']);
-        $salePrice = $product['sale_price'];
-
-        if ($quantity > $currentQuantity) {
-            echo "<script>alert('Insufficient stock for this product.');</script>";
-        } else {
-            $totalPrice = $salePrice * $quantity;
-
-            // Always insert a new sale entry, even for existing products
-            $insertSaleStmt = $conn->prepare(
-                "INSERT INTO sales (product_id, qty, total_price, date, sales_month) VALUES (?, ?, ?, ?, ?)"
-            );
-
-            // Extract the month from the sale date
-            $salesMonth = date('m', strtotime($saleDate));  // Get the month as '01', '02', '03', etc.
-            $insertSaleStmt->execute([$productId, $quantity, $totalPrice, $saleDate, (int)$salesMonth]);
-
-            echo "<script>alert('Sale added successfully.');</script>";
-
-            $newProductQuantity = $currentQuantity - $quantity;
-            $updateProductStmt = $conn->prepare("UPDATE products SET quantity = ? WHERE prod_id = ?");
-            $updateProductStmt->execute([$newProductQuantity, $productId]);
-
-            echo "<script>window.location.href = '" . $_SERVER['PHP_SELF'] . "';</script>";
-        }
-    } else {
-        echo "<script>alert('Product not found.');</script>";
-    }
-}
-
+// Fetch categories from the database
+$stmt = $conn->prepare("SELECT category_id, name, created_at FROM categories");
+$stmt->execute();
+$categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <link rel="stylesheet" href="../lib/addsales/addsales.css">
@@ -61,90 +17,72 @@ if (isset($_GET['addSale'])) {
     <?php include('../layouts/sidebar.php'); ?>
     <h1 class="dash-fix">Add Sales</h1>
     <div class="main__container">
-        <div class="col-lg-12">
-            <div class="card">
-                <div class="card-header">
-                    <form action="" method="get" id="searchForm">
-                        <div class="input-group">
-                            <button type="submit" class="btn btn-primary">Search</button>
-                            <input type="text" class="form-control" name="ProductSearch" id="ProductSearch"
-                                placeholder="Search by product name, brand, or model..."
-                                value="<?= htmlspecialchars($searchTerm) ?>" required>
-                        </div>
-                    </form>
+        <div class="d-flex flex-column">
+            <div class="input-group">
+                <div class="form-outline" data-mdb-input-init>
+                    <input type="search" id="form1" placeholder="Search" class="form-control" />
                 </div>
-                <div class="card-body">
-                    <div class="table-responsive" style="height: 61vh; overflow-y: auto;">
-                        <form action="" method="get" id="salesForm">
-                            <input type="hidden" name="ProductSearch" value="<?= htmlspecialchars($searchTerm) ?>">
-                            <table class="table table-striped table-bordered"
-                                style="text-align: center; vertical-align: middle;">
-                                <thead>
-                                    <tr>
-                                        <th>Product Name</th>
-                                        <th>Price</th>
-                                        <th>Quantity</th>
-                                        <th>Total</th>
-                                        <th>Date</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="productTableBody">
-                                    <?php
-                                    if (!empty($searchTerm)) {
-                                        $stmt = $conn->prepare(
-                                            "SELECT prod_id, name, sale_price, prod_brand, prod_model 
-                                             FROM products 
-                                             WHERE name LIKE ? OR prod_brand LIKE ? OR prod_model LIKE ?"
-                                        );
-                                        $searchLike = "%" . $searchTerm . "%";
-                                        $stmt->execute([$searchLike, $searchLike, $searchLike]);
-                                    } else {
-                                        $stmt = $conn->query("SELECT prod_id, name, sale_price FROM products");
-                                    }
-
-                                    while ($row = $stmt->fetch()) {
-                                        $currentDate = date('Y-m-d');
-                                        $prod_id = $row['prod_id'];
-                                        $price = $row['sale_price'];
-                                        $quantity = isset($quantities[$prod_id]) ? $quantities[$prod_id] : 1;
-                                        $totalPrice = number_format($price * $quantity, 0);
-                                    ?>
-                                    <tr>
-                                        <td class="text-center"><?= htmlspecialchars($row['name']) ?></td>
-                                        <td class="text-center">
-                                            <input type="text" class="form-control price-input" readonly
-                                                value="₱ <?= number_format($price, 0, '.', ',') ?>" name="price[<?= $prod_id ?>]">
-                                        </td>
-                                        <td class="text-center">
-                                            <input type="number" class="form-control quantity-input" min="1" value="<?= $quantity ?>"
-                                                name="quantity[<?= $prod_id ?>]" required data-prod-id="<?= $prod_id ?>">
-                                        </td>
-                                        <td class="text-center">
-                                            <input type="text" class="form-control total-price"
-                                                value="₱ <?= $totalPrice ?>" readonly data-prod-id="<?= $prod_id ?>">
-                                        </td>
-                                        <td class="text-center">
-                                            <input type="date" class="form-control" value="<?= $currentDate ?>"
-                                                name="sale_date[<?= $prod_id ?>]" required>
-                                        </td>
-                                        <td class="text-center">
-                                            <button type="button" class="sale-button btn addSaleButton"
-                                                data-prod-id="<?= $prod_id ?>" style="white-space: nowrap;">
-                                                <i class="fa fa-plus-circle"></i> Add Sale
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    <?php } ?>
-                                </tbody>
-                            </table>
-                        </form>
+                <button type="button" class="btn btn-primary" data-mdb-ripple-init>
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+            <div class="container-fluid py-2">
+                <div class="horizontal-scrollbar d-flex flex-row flex-nowrap">
+                    <?php if (empty($categories)): ?>
+                        <p>No categories found.</p>
+                    <?php else: ?>
+                        <?php foreach ($categories as $category): ?>
+                            <div class="card card-body m-2 card-highlight" style="width: 18rem;" onclick="loadCategoryProducts(<?= $category['category_id'] ?>)">
+                                <h5 class="card-title"><?= htmlspecialchars($category['name']) ?></h5>
+                                <p class="card-text"><?= date('F j, Y', strtotime($category['created_at'])) ?></p>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <div class="d-flex flex-row justify-content-between gap-3">
+                <div class="card p-2 flex-grow-1">
+                    <div class="categoryproduct-table card-body">
+                        <h1>Products Table</h1>
+                        <table id="product-table" class="table table-striped table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Photo</th>
+                                    <th>Product Name</th>
+                                    <th>Brand</th>
+                                    <th>Model</th>
+                                    <th>Stocks</th>
+                                    <th>Price</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Products will be dynamically populated here -->
+                            </tbody>
+                        </table>
                     </div>
-                    <!-- Pagination footer -->
-                    <div class="pagination-container d-flex gap-2">
-                        <span class="total-users me-auto p-2">Showing results</span>
-                        <button class="prev-page btn btn-secondary" disabled>Previous</button>
-                        <button class="next-page btn btn-secondary" disabled>Next</button>
+                </div>
+                <div class="card p-2">
+                    <div class="table card-body">
+                        <h1>Sales Table</h1>
+                        <table class="table sales-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Product Name</th>
+                                    <th>Quantity</th>
+                                    <th>Price</th>
+                                    <th>Total</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sales-table-body"></tbody>
+                        </table>
+                        <div class="text-end">
+                            <h3 id="grand-total">Grand Total: ₱0.00</h3>
+                            <button class="btn btn-primary" id="confirm-purchase-btn" data-bs-toggle="modal" data-bs-target="#confirmPurchaseModal">Confirm Purchase</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -152,68 +90,108 @@ if (isset($_GET['addSale'])) {
     </div>
 </main>
 
+<!-- Confirm Purchase Modal -->
+<div class="modal fade" id="confirmPurchaseModal" tabindex="-1" aria-labelledby="confirmPurchaseModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmPurchaseModalLabel">Confirm Purchase</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to confirm this purchase? This action cannot be undone.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="confirm-purchase-action">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../lib/addsales/addsales.js"></script>
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        // Prevent form submission on Enter key press
-        const quantityInputs = document.querySelectorAll(".quantity-input");
-        quantityInputs.forEach(input => {
-            input.addEventListener("keydown", function (event) {
-                if (event.key === "Enter") {
-                    event.preventDefault();
-                }
-            });
+    const salesData = [];
 
-            // Update total price in real-time when quantity changes
-            input.addEventListener("input", function () {
-                const prodId = this.getAttribute("data-prod-id");
-                const quantity = parseInt(this.value) || 1;
-                const price = parseFloat(document.querySelector(`input[name="price[${prodId}]"]`).value.replace("₱", "").replace(",", ""));
-                const totalPrice = price * quantity;
-
-                // Update the total price for this product
-                const totalPriceInput = document.querySelector(`input[data-prod-id="${prodId}"].total-price`);
-                totalPriceInput.value = "₱ " + totalPrice.toLocaleString();
+    function loadCategoryProducts(categoryId) {
+        fetch(`../includes/get_products.php?category_id=${categoryId}`)
+            .then(res => res.json())
+            .then(data => {
+                const tableBody = document.querySelector("#product-table tbody");
+                tableBody.innerHTML = "";
+                data.forEach((product, index) => {
+                    tableBody.innerHTML += `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td><img src="../uploads/products/${product.photo}" width="50"></td>
+                            <td>${product.name}</td>
+                            <td>${product.prod_brand}</td>
+                            <td>${product.prod_model}</td>
+                            <td>${product.quantity}</td>
+                            <td>${product.sale_price}</td>
+                            <td>
+                                <button class="btn btn-primary add-sales-btn" data-id="${product.prod_id}" data-name="${product.name}" data-price="${product.sale_price}">Add</button>
+                            </td>
+                        </tr>`;
+                });
             });
+    }
+
+    document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('add-sales-btn')) {
+            const productId = e.target.dataset.id;
+            const productName = e.target.dataset.name;
+            const productPrice = parseFloat(e.target.dataset.price);
+
+            const existing = salesData.find(p => p.id === productId);
+            if (existing) existing.quantity++;
+            else salesData.push({ id: productId, name: productName, price: productPrice, quantity: 1 });
+
+            renderSalesTable();
+        }
+    });
+
+    function renderSalesTable() {
+        const tableBody = document.querySelector("#sales-table-body");
+        tableBody.innerHTML = "";
+        let total = 0;
+        salesData.forEach((p, i) => {
+            const totalCost = p.price * p.quantity;
+            total += totalCost;
+            tableBody.innerHTML += `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td>${p.name}</td>
+                    <td>${p.quantity}</td>
+                    <td>${p.price}</td>
+                    <td>${totalCost}</td>
+                    <td>
+                        <button class="btn btn-danger remove-btn" data-id="${p.id}">Remove</button>
+                    </td>
+                </tr>`;
         });
+        document.getElementById("grand-total").textContent = `Grand Total: ₱${total}`;
+    }
 
-        // Add sale functionality
-        const addSaleButtons = document.querySelectorAll(".addSaleButton");
-        addSaleButtons.forEach(button => {
-            button.addEventListener("click", function () {
-                const prodId = this.getAttribute("data-prod-id");
-                const quantityInput = document.querySelector(`input[name="quantity[${prodId}]"]`);
-                const quantity = quantityInput.value;
-                const saleDate = document.querySelector(`input[name="sale_date[${prodId}]"]`).value;
-
-                const form = document.getElementById('salesForm');
-
-                // Add the product data to the form before submitting
-                const saleInput = document.createElement('input');
-                saleInput.type = 'hidden';
-                saleInput.name = `addSale[${prodId}]`;
-                saleInput.value = '1'; // Mark this product to be added as sale
-                form.appendChild(saleInput);
-
-                // Add quantity and sale date to the form
-                const quantityInputHidden = document.createElement('input');
-                quantityInputHidden.type = 'hidden';
-                quantityInputHidden.name = `quantity[${prodId}]`;
-                quantityInputHidden.value = quantity;
-                form.appendChild(quantityInputHidden);
-
-                const saleDateInput = document.createElement('input');
-                saleDateInput.type = 'hidden';
-                saleDateInput.name = `sale_date[${prodId}]`;
-                saleDateInput.value = saleDate;
-                form.appendChild(saleDateInput);
-
-                // Submit the form
-                form.submit();
-            });
+    document.getElementById("confirm-purchase-action").addEventListener("click", () => {
+        fetch("../includes/addsales_functions.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ sales: salesData })
+        })
+        .then(() => {
+            alert("Purchase confirmed!");
+            // Optionally, reset sales data and table
+            salesData.length = 0;
+            renderSalesTable();
         });
     });
 </script>
 
+
+
+
 <script src="../lib/addsales/addsales.js"></script>
 </body>
+
 </html>

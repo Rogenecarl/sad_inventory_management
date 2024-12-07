@@ -7,8 +7,7 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
     
     <h1 class="dash-fix">Monthly Sales</h1>
     <div class="main__container">
-        <h1>Welcome to Category</h1>
-        <p>This is the Category </p>
+        <p>Welcome to Monthly Sales</p>
     </div>
 </main>
 

@@ -1,0 +1,18 @@
+Array
+(
+    [salesData] => Array
+        (
+            [0] => Array
+                (
+                    [id] => 55
+                    [name] => Blueridge
+                    [price] => 120
+                    [quantity] => 1
+                    [total_price] => 120
+                )
+
+        )
+
+    [salesDate] => 2024-12-07
+)
+SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`tc_inventory_system`.`sales`, CONSTRAINT `sales_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_id`) ON DELETE CASCADE)

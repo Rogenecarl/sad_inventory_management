@@ -1,30 +1,56 @@
 <?php
 require_once 'load.php';
 
-// Handle adding sales
+// Check if request method is POST and data is present
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Get the sales data from the request body
+    $salesData = json_decode(file_get_contents('php://input'), true);
 
+    // Check if sales data is not empty
+    if (!empty($salesData['sales'])) {
+        try {
+            // Begin transaction
+            $conn->beginTransaction();
 
-// if (isset($_POST['searchTerm'])) {
-//     $searchTerm = trim($_POST['searchTerm']);
-//     $searchLike = '%' . $searchTerm . '%';
+            // Loop through the sales data and insert into the sales table
+            foreach ($salesData['sales'] as $sale) {
+                // Prepare the insert statement for sales
+                $stmt = $conn->prepare("INSERT INTO sales (product_id, qty, total_price, date) VALUES (:product_id, :qty, :total_price, CURDATE())");
 
-//     $stmt = $conn->prepare(
-//         "SELECT prod_id, name, sale_price, prod_brand, prod_model 
-//          FROM products 
-//          WHERE name LIKE ? OR prod_brand LIKE ? OR prod_model LIKE ?"
-//     );
-//     $stmt->execute([$searchLike, $searchLike, $searchLike]);
+                // Calculate total price
+                $totalPrice = $sale['price'] * $sale['quantity'];
 
-//     while ($row = $stmt->fetch()) {
-//         $currentDate = date('Y-m-d');
-//         echo '<tr>';
-//         echo '<td class="text-center">' . htmlspecialchars($row['name']) . '</td>';
-//         echo '<td class="text-center"><input type="number" class="form-control price-input" min="0" step="0.01" value="' . htmlspecialchars($row['sale_price']) . '" onchange="updateTotal(this)"></td>';
-//         echo '<td class="text-center"><input type="number" class="form-control quantity-input" min="1" value="1" onchange="updateTotal(this)"></td>';
-//         echo '<td class="text-center"><input type="text" class="form-control total-price" value="' . htmlspecialchars($row['sale_price']) . '" readonly></td>';
-//         echo '<td class="text-center"><input type="date" class="form-control" value="' . $currentDate . '"></td>';
-//         echo '<td class="text-center"><button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSaleModal_' . htmlspecialchars($row['prod_id']) . '">Add Sale</button></td>';
-//         echo '</tr>';
-//     }
-// }
+                // Bind parameters and execute the statement
+                $stmt->bindParam(':product_id', $sale['id'], PDO::PARAM_INT);
+                $stmt->bindParam(':qty', $sale['quantity'], PDO::PARAM_INT);
+                $stmt->bindParam(':total_price', $totalPrice, PDO::PARAM_STR);
+                $stmt->execute();
+
+                // Update the product's stock after a sale
+                $stmt = $conn->prepare("UPDATE products SET quantity = quantity - :quantity WHERE prod_id = :product_id");
+                $stmt->bindParam(':quantity', $sale['quantity'], PDO::PARAM_INT);
+                $stmt->bindParam(':product_id', $sale['id'], PDO::PARAM_INT);
+                $stmt->execute();
+            }
+
+            // Commit the transaction
+            $conn->commit();
+
+            // Return a success response
+            echo json_encode(['status' => 'success', 'message' => 'Sales data added successfully']);
+        } catch (Exception $e) {
+            // Rollback transaction in case of error
+            $conn->rollBack();
+
+            // Return error response
+            echo json_encode(['status' => 'error', 'message' => 'Failed to add sales data: ' . $e->getMessage()]);
+        }
+    } else {
+        // Return error response if sales data is empty
+        echo json_encode(['status' => 'error', 'message' => 'No sales data received']);
+    }
+} else {
+    // Return error response if the request method is not POST
+    echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+}
 ?>

@@ -9,7 +9,7 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
     <?php include('../layouts/sidebar.php'); ?>
 
     <h1 class="dash-fix">admin Dashboard</h1>
-    <div class="main__container">
+    <div class="main__containert">
         <h1>Welcome to Dashboard</h1>
         <p>This is the main </p>
 

@@ -1,141 +1,129 @@
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
+.card-body {
+  min-height: 150px;
+  min-width: 250px;
 }
 
-.table th,
-.table td {
+.card {
+  border: none;
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 12px rgba(27, 26, 26, 0.15);
+}
+
+.card-highlight {
+  width: 12rem;
   text-align: center;
-  border: 1px solid #e0e0e0;
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s;
 }
 
-.table th {
-  background-color: #fff;
-  font-weight: bold;
+.card-inner {
+  padding: 20px;
 }
 
-.table-striped tbody tr:nth-of-type(odd) {
-  background-color: #f3f3f3;
+.card-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #004d40; /* Dark teal for the title */
+  margin-bottom: 10px;
 }
 
-.table-responsive {
-  flex-grow: 1;
+.card-text {
+  font-size: 0.9rem;
+  color: #00796b; /* Muted teal for the date text */
+}
+
+.horizontal-scrollbar {
+  overflow-x: auto;
+  padding-bottom: 10px;
+}
+
+.horizontal-scrollbar::-webkit-scrollbar {
+  height: 6px;
+  display: none;
+}
+
+.horizontal-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #bbb;
+  border-radius: 3px;
+}
+
+.horizontal-scrollbar::-webkit-scrollbar-track {
+  background: #f0f0f0;
+}
+
+/* Responsive scaling for mobile */
+@media (max-width: 576px) {
+  .card {
+    width: 14rem;
+  }
+}
+
+/* .horizontal-scrollbar {
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+} */
+
+/* .horizontal-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  border-radius: 10px;
+}
+
+.horizontal-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.horizontal-scrollbar::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+.horizontal-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #555;
+  border-radius: 10px;
+} */
+
+.searchcartegory {
+  width: 200px;
+  background-color: #f1f1f1;
+  border-bottom: 1px solid #ccc;
+}
+
+.searchcartegory i {
+  color: #888;
+}
+
+#search-input {
+  padding: 5px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+#search-input:focus {
+  border-color: #aaa;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.main__container {
+  max-height: 600px;
   overflow-y: auto;
-  border: 1px solid #e0e0e0;
+  scrollbar-width: none; /* Hide scrollbar in Firefox */
+  -ms-overflow-style: none; /* Hide scrollbar in IE and Edge */
 }
 
-.table thead th {
-  position: sticky;
-  top: 0;
-  z-index: 2;
-  background-color: #007bff;
-  color: #fff;
-  font-weight: bold;
+.main__container::-webkit-scrollbar {
+  display: none; /* Hide scrollbar in Chrome, Safari, and Opera */
 }
-
-/* Button styles */
-.btn {
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.btn-primary {
-  background-color: #007bff;
-  color: #fff;
-}
-
-.card-header button:hover {
-  background-color: #0056b3;
-  transform: scale(1.05);
-}
-
-.sale-button {
-  background-color: #23947f;
-  border: 1px solid #13aa52;
-  color: #fff;
-}
-
-.sale-button:hover {
-  background-color: #23947fcd;
-  color: #ffffff;
-  transform: scale(1.05);
-}
-
-.editPro-btn,
-.deletePro-btn {
-  padding: 8px 12px;
-  font-size: 16px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  justify-content: center;
-  align-items: center;
-  display: flex;
-}
-
-.editPro-btn {
-  background-color: #28a745;
-  color: #fff;
-}
-
-.editPro-btn:hover {
-  background-color: #218838;
-  color: #fff;
-}
-
-.deletePro-btn {
-  background-color: #dc3545;
-  color: #fff;
-}
-
-.deletePro-btn:hover {
-  background-color: #c82333;
-}
-
-.editPro-btn i,
-.deletePro-btn i {
-  font-size: 18px;
-}
-
-.editPro-btn,
-.deletePro-btn {
-  width: 20px;
-  height: 20px;
-}
-
-.modal-content {
-  border-radius: 8px;
-  padding: 16px;
-}
-
-.pagination-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 15px;
-}
-
-.total-users {
-  font-size: 14px;
-  color: #6c757d;
-}
-
-.pagination-container button {
-  padding: 6px 12px;
-  font-size: 14px;
-  border-radius: 4px;
-  border: none;
-  background-color: #007bff;
-  color: #fff;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-.pagination-container button:hover {
-  background-color: #0056b3;
-  transform: scale(1.05);
-}
-
