@@ -13,7 +13,6 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
         <h1>Welcome to Dashboard</h1>
         <p>This is the main </p>
 
-        <!-- Button to change content dynamically -->
         <button id="changeContentBtn">Change Content</button>
 
         <div id="dynamicContent">

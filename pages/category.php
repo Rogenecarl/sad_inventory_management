@@ -102,7 +102,6 @@ $message_type = isset($_GET['message_type']) ? $_GET['message_type'] : '';
                             <tr>
                                 <td class="text-center"><?= $offset + $index + 1 ?></td>
                                 <td><?= htmlspecialchars($category['name']) ?></td>
-                                <!-- Show description or a default message if NULL or empty -->
                                 <td>
                                     <?php
                                     if (!empty($category['description'])) {

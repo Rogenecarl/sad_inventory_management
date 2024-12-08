@@ -69,7 +69,7 @@ $message_type = "success";
                                 </tr>
                             </thead>
                             <tbody>
-                                <!-- Products will be dynamically populated here -->
+                                <!-- This will Dsiplay the Products -->
                             </tbody>
                         </table>
                     </div>
@@ -193,14 +193,10 @@ $message_type = "success";
                     // Update the salesData with the new quantity
                     product.quantity = newQuantity;
                 }
-
-                // Re-render the sales table
                 renderSalesTable();
             }
         }
     });
-
-
 
     function renderSalesTable() {
         const tableBody = document.querySelector("#sales-table-body");
@@ -238,7 +234,6 @@ $message_type = "success";
                 product.quantity = newQuantity;
             }
 
-            // Re-render the sales table with the updated quantities
             renderSalesTable();
         }
     });
@@ -252,7 +247,6 @@ $message_type = "success";
         })
             .then(() => {
                 toastr.success("Purchase confirmed!", "Success");
-                // Optionally, reset sales data and table
                 salesData.length = 0;
                 renderSalesTable();
             });

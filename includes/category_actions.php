@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['createCat'])) {
         $stmt = $conn->prepare("INSERT INTO categories (name, description, created_at) VALUES (:name, :description, NOW())");
         $stmt->execute([
             ':name' => $name,
-            ':description' => $description  // Will be NULL if not provided
+            ':description' => $description 
         ]);
 
         header("Location: ../pages/category.php?message=Category created successfully&message_type=success");
@@ -37,9 +37,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['createCat'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['updateCat'])) {
     $catId = $_GET['catId'];
     $name = $_POST['name'];
-    $description = !empty($_POST['description']) ? $_POST['description'] : null;  // Set description to NULL if empty
+    $description = !empty($_POST['description']) ? $_POST['description'] : null;
 
-    // Check if category name already exists (excluding current category)
+    // Check if category name already exists
     $stmt = $conn->prepare("SELECT * FROM categories WHERE name = :name AND category_id != :catId");
     $stmt->execute([
         ':name' => $name,
@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['updateCat'])) {
         $stmt = $conn->prepare("UPDATE categories SET name = :name, description = :description WHERE category_id = :catId");
         $stmt->execute([
             ':name' => $name,
-            ':description' => $description,  // Will be NULL if not provided
+            ':description' => $description,
             ':catId' => $catId
         ]);
 

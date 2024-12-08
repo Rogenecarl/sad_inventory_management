@@ -1,7 +1,6 @@
 <?php
 require_once 'load.php';
 
-//this is the toastr
 // Add user
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['createUser'])) {
     $name = $_POST['name'];

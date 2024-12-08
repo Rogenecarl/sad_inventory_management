@@ -1,5 +1,4 @@
 <?php
-// Check if $message and $message_type are set before including this file
 if (!empty($message)): ?>
     <script type="text/javascript">
         toastr.options = {

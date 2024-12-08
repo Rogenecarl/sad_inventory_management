@@ -2,10 +2,9 @@
 require_once '../includes/load.php';
 require_login();
 
-// Retrieve sales data from the session
 $sales_data = $_SESSION['sales_report'] ?? [];
 $report_dates = $_SESSION['report_dates'] ?? [];
-unset($_SESSION['sales_report'], $_SESSION['report_dates']); // Clear session data
+unset($_SESSION['sales_report'], $_SESSION['report_dates']);
 
 $from_date = $report_dates['from_date'] ?? '';
 $to_date = $report_dates['to_date'] ?? '';
@@ -51,7 +50,7 @@ $to_date = $report_dates['to_date'] ?? '';
     </table>
 
     <script>
-        window.print(); // Automatically opens print dialog
+        window.print();
     </script>
 </body>
 </html>

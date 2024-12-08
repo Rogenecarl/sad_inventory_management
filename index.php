@@ -43,16 +43,6 @@ if (isset($_POST['Submit'])) {
         </div>
     </div>
 
-    <!-- Screen loader -->
-    <div class="screenloader">
-        <div class="loading-wave">
-            <div class="loading-bar"></div>
-            <div class="loading-bar"></div>
-            <div class="loading-bar"></div>
-            <div class="loading-bar"></div>
-        </div>
-    </div>
-
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="lib/login/js/script.js"></script>
 </body>

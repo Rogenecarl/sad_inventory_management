@@ -1,7 +1,5 @@
 <?php
 require_once 'load.php';
-
-
 $uploadDir = '../uploads/products/';
 
 // Add Product
@@ -12,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['addproduct'])) {
     $prodM = $_POST['prodM'];
     $prodQ = $_POST['prodQ'];
     $prodPrice = $_POST['prodPrice'];
-    $photoName = NULL;  // Default photo value (NULL)
+    $photoName = NULL;
 
     // Check if a photo was uploaded
     if (isset($_FILES['productPhoto']) && $_FILES['productPhoto']['error'] === UPLOAD_ERR_OK) {
@@ -20,18 +18,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['addproduct'])) {
         $photoName = time() . '_' . basename($photo['name']);
         $photoPath = $uploadDir . $photoName;
 
-        // Try to move the uploaded file
         if (!move_uploaded_file($photo['tmp_name'], $photoPath)) {
             die("Error: Unable to upload photo.");
         }
     }
 
     try {
-        // Prepare and execute the SQL query to insert the product
         $stmt = $conn->prepare("INSERT INTO products (name, categorie_id, prod_brand, prod_model, quantity, sale_price, photo, created_at) 
                                 VALUES (:name, :categorie_id, :prod_brand, :prod_model, :quantity, :sale_price, :photo, NOW())");
 
-        // Execute with the photo (it could be NULL if no photo is uploaded)
         $stmt->execute([
             ':name' => $prodname,
             ':categorie_id' => $category,
@@ -39,10 +34,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['addproduct'])) {
             ':prod_model' => $prodM,
             ':quantity' => $prodQ,
             ':sale_price' => $prodPrice,
-            ':photo' => $photoName,  // NULL or photo name
+            ':photo' => $photoName, 
         ]);
 
-        // Redirect to the products page with a success message
         header("Location: ../pages/products.php?message=Product created successfully&message_type=success");
         exit();
     } catch (PDOException $e) {
@@ -57,12 +51,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['addproduct'])) {
 // Update product
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['updateproduct']) && isset($_GET['proId'])) {
     $proId = $_GET['proId'];
-    $prodname = $_POST['prodname'] ?? null; // New product name
-    $prodbrand = $_POST['prodbrand'] ?? null; // New brand
-    $prodmodel = $_POST['prodmodel'] ?? null; // New model
+    $prodname = $_POST['prodname'] ?? null;
+    $prodbrand = $_POST['prodbrand'] ?? null;
+    $prodmodel = $_POST['prodmodel'] ?? null; 
     $prodquan = isset($_POST['prodquan']) && is_numeric($_POST['prodquan']) ? (int) $_POST['prodquan'] : 0; // Quantity
-    $prodprice = $_POST['prodprice'] ?? null; // Updated price
-    $remarks = $_POST['remarks'] ?? null; // Remarks
+    $prodprice = $_POST['prodprice'] ?? null;
+    $remarks = $_POST['remarks'] ?? null;
     $photoName = null;
 
     try {
@@ -156,18 +150,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['updateproduct']) && i
     }
 }
 
-
-
-
-
-
-
 // Delete Product
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['proId'])) {
     $proId = $_GET['proId'];
 
     try {
-        // Fetch and delete the product's photo
         $stmt = $conn->prepare("SELECT photo FROM products WHERE prod_id = :proId");
         $stmt->execute([':proId' => $proId]);
         $product = $stmt->fetch(PDO::FETCH_ASSOC);

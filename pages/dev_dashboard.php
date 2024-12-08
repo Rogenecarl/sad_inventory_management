@@ -29,8 +29,6 @@ $totalSalesStmt->bindParam(':selected_year', $currentYear, PDO::PARAM_INT);
 $totalSalesStmt->execute();
 $totalSales = $totalSalesStmt->fetch(PDO::FETCH_ASSOC)['total_sales'] ?? 0; // Default to 0 if no sales
 
-
-
 // Fetch all available years from the sales table
 $yearsStmt = $conn->prepare("SELECT DISTINCT YEAR(date) AS year FROM sales ORDER BY year DESC");
 $yearsStmt->execute();
@@ -66,7 +64,6 @@ foreach ($monthlySales as $sale) {
     $monthlyData['total_quantity'][$monthIndex] = (int) $sale['total_qty'];
     $monthlyData['total_sales'][$monthIndex] = (float) $sale['total_sales'];
 }
-
 
 // Highest selling products for the chart
 $highestSellingStmt = $conn->prepare("
@@ -192,8 +189,6 @@ $totalProductsSold = $totalProductsSoldStmt->fetch(PDO::FETCH_ASSOC)['total_prod
                                 </option>
                             <?php endforeach; ?>
                         </select>
-
-
                     </div>
                     <canvas id="monthlySalesChart"></canvas>
                 </div>
@@ -263,7 +258,6 @@ $totalProductsSold = $totalProductsSoldStmt->fetch(PDO::FETCH_ASSOC)['total_prod
 </main>
 
 <script>
-
     function changeYear(year) {
         window.location.href = "?year=" + year;
     }
@@ -272,7 +266,6 @@ $totalProductsSold = $totalProductsSoldStmt->fetch(PDO::FETCH_ASSOC)['total_prod
         fetch(`fetch_sales.php?year=${selectedYear}`)
             .then(response => response.json())
             .then(data => {
-                // Update the Total Sales card dynamically
                 document.querySelector('.card-text').textContent = `₱${new Intl.NumberFormat().format(data.totalSales)}`;
             })
             .catch(error => console.error('Error fetching sales data:', error));
@@ -288,21 +281,21 @@ $totalProductsSold = $totalProductsSoldStmt->fetch(PDO::FETCH_ASSOC)['total_prod
             {
                 label: 'Product Sold',
                 data: <?php echo json_encode($monthlyData['total_quantity']); ?>,
-                type: 'line', // Line graph for quantity sold
+                type: 'line',
                 backgroundColor: 'rgba(54, 162, 235, 0.2)',
                 borderColor: 'rgba(54, 162, 235, 1)',
                 borderWidth: 2,
-                yAxisID: 'yQuantity', // Link to left axis
-                tension: 0.4 // Smooth line
+                yAxisID: 'yQuantity',
+                tension: 0.4
             },
             {
                 label: 'Total Sales (₱)',
                 data: <?php echo json_encode($monthlyData['total_sales']); ?>,
-                type: 'bar', // Bar graph for total sales
+                type: 'bar',
                 backgroundColor: 'rgba(255, 99, 132, 0.2)',
                 borderColor: 'rgba(255, 99, 132, 1)',
                 borderWidth: 1,
-                yAxisID: 'ySales' // Link to right axis
+                yAxisID: 'ySales' 
             }
         ]
     };
@@ -347,7 +340,6 @@ $totalProductsSold = $totalProductsSoldStmt->fetch(PDO::FETCH_ASSOC)['total_prod
         }
     };
 
-    // Render Chart
     const ctx = document.getElementById('monthlySalesChart').getContext('2d');
     new Chart(ctx, config);
 

@@ -35,13 +35,13 @@
 .card-title {
   font-size: 1.2rem;
   font-weight: 600;
-  color: #004d40; /* Dark teal for the title */
+  color: #000000;
   margin-bottom: 10px;
 }
 
 .card-text {
   font-size: 0.9rem;
-  color: #00796b; /* Muted teal for the date text */
+  color: #00796b; 
 }
 
 .horizontal-scrollbar-wrapper {
@@ -84,7 +84,6 @@
   background: #f0f0f0;
 }
 
-/* Responsive scaling for mobile */
 @media (max-width: 576px) {
   .card {
     width: 14rem;
@@ -163,10 +162,10 @@
 .main__container {
   max-height: 600px;
   overflow-y: auto;
-  scrollbar-width: none; /* Hide scrollbar in Firefox */
-  -ms-overflow-style: none; /* Hide scrollbar in IE and Edge */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .main__container::-webkit-scrollbar {
-  display: none; /* Hide scrollbar in Chrome, Safari, and Opera */
+  display: none;
 }

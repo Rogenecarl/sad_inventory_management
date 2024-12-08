@@ -81,11 +81,10 @@
     border-radius: 5px;
     padding: 5px;
     overflow-y: auto;
-    scrollbar-width: none; /* add this line */
-    -ms-overflow-style: none; /* add this line for IE and Edge */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
 
-/* add this CSS rule to hide the scrollbar in WebKit-based browsers */
 .main__container::-webkit-scrollbar {
     display: none;
 }

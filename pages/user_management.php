@@ -3,27 +3,21 @@ include('../layouts/header.php');
 require_once '../includes/load.php';
 
 require_login();
-
-// Initialize variables
 $itemsPerPage = isset($_GET['items_per_page']) ? (int) $_GET['items_per_page'] : 5;
 $searchKeyword = isset($_GET['search']) ? trim($_GET['search']) : '';
 $currentPageNumber = isset($_GET['page']) ? (int) $_GET['page'] : 1;
 
-// Database connection check
 if (!$conn) {
     die("Database connection failed.");
 }
 
-// Query total item count
 $totalItemsQuery = $conn->prepare("SELECT COUNT(*) FROM users WHERE name LIKE :keyword");
 $totalItemsQuery->execute([':keyword' => '%' . $searchKeyword . '%']);
 $totalItems = $totalItemsQuery->fetchColumn();
 
-// Pagination calculations
 $totalPages = ceil($totalItems / $itemsPerPage);
 $offset = ($currentPageNumber - 1) * $itemsPerPage;
 
-// Fetch paginated data
 $query = $conn->prepare("
     SELECT User_id, name, username, user_level, status, last_login
     FROM users
@@ -31,19 +25,17 @@ $query = $conn->prepare("
     ORDER BY name ASC
     LIMIT :offset, :itemsPerPage
 ");
+
 $query->bindValue(':keyword', '%' . $searchKeyword . '%', PDO::PARAM_STR);
 $query->bindValue(':offset', $offset, PDO::PARAM_INT);
 $query->bindValue(':itemsPerPage', $itemsPerPage, PDO::PARAM_INT);
 $query->execute();
 $users = $query->fetchAll(PDO::FETCH_ASSOC);
 
-// User roles and statuses
 $user_levels = [1 => 'Developer', 2 => 'Admin', 3 => 'Staff'];
 $statuses = [1 => 'Active', 0 => 'Inactive'];
 
-// Check if AJAX request to update table
 if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest') {
-    // Return only table rows
     ob_start();
     if (!empty($users)) {
         foreach ($users as $index => $user) {
@@ -68,19 +60,17 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'
     exit;
 }
 
-
 $message = isset($_GET['message']) ? $_GET['message'] : '';
 $message_type = isset($_GET['message_type']) ? $_GET['message_type'] : '';
 ?>
 
-<!-- Include toastr CSS -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 <link rel="stylesheet" href="../lib/usermanagement/userstyle.css">
 
 <main class="main container" id="main">
     <?php include('../layouts/sidebar.php'); ?>
     <div class="table-wrapper">
-        <!-- Table Header -->
+
         <div class="table-title">
             <div class="d-flex justify-content-between">
                 <div class="col-sm-4">
@@ -289,7 +279,6 @@ while ($row = $stmt->fetch()) {
                         <div class="form-group">
                             <label for="" class="form-label">Password</label>
                             <input type="password" class="form-control" name="password" id="password">
-                            <!-- Password field: optional for updating the password -->
                             <small class="form-text text-muted">Leave blank if you
                                 don't want to change the password.</small>
                         </div>
@@ -373,12 +362,9 @@ while ($row = $stmt->fetch()) {
     });
 </script>
 
-
-<!-- Include toastr JS -->
+<!-- toastr JS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-
-
 
 <?php include '../toast/toastr.php'; ?>
 

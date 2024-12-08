@@ -1,10 +1,8 @@
 <?php
-// Include necessary files
 include('../layouts/header.php');
 require_once '../includes/load.php';
 require_login();
 
-// Get current page name for navigation purposes
 $currentPage = basename($_SERVER['PHP_SELF'], '.php');
 
 // Handle pagination and search inputs
@@ -44,7 +42,6 @@ $message_type = isset($_GET['message_type']) ? $_GET['message_type'] : '';
     <?php include('../layouts/sidebar.php'); ?>
 
     <div class="table-wrapper">
-        <!-- Header Section -->
         <div class="table-title">
             <div class="d-flex justify-content-between">
                 <div class="col-sm-4">
@@ -279,10 +276,7 @@ while ($row = $stmt->fetch()) {
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <!-- Product Name -->
                     <p><strong>Product Name:</strong> <?= htmlspecialchars($row['name']) ?></p>
-
-                    <!-- Stock History Table -->
                     <h6>Stock History:</h6>
                     <table class="table table-striped">
                         <thead>
@@ -297,14 +291,12 @@ while ($row = $stmt->fetch()) {
                         </thead>
                         <tbody>
                             <?php
-                            // Fetch all stock history for this product
                             $historyStmt = $conn->prepare("SELECT quantity_added, previous_stock, new_stock, price, created_at, remarks
                                                           FROM StockHistory
                                                           WHERE prod_id = :prod_id
                                                           ORDER BY created_at DESC");
                             $historyStmt->execute(['prod_id' => $row['prod_id']]);
 
-                            // Loop through and display stock history
                             while ($history = $historyStmt->fetch(PDO::FETCH_ASSOC)) {
                                 echo "<tr>";
                                 echo "<td>" . $history['quantity_added'] . "</td>";
@@ -421,8 +413,6 @@ while ($row = $stmt->fetch()) {
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-
-
 
 <?php include '../toast/toastr.php'; ?>
 <script src="../lib/products/products.js"></script>
