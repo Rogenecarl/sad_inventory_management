@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 08, 2024 at 09:07 AM
+-- Generation Time: Dec 08, 2024 at 09:52 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -49,7 +49,8 @@ INSERT INTO `categories` (`category_id`, `name`, `description`, `created_at`) VA
 (37, 'Amplifier', '', '2024-12-06 10:02:24'),
 (38, 'kani', 'ok', '2024-12-06 16:17:17'),
 (39, 'andaw bi', 'he', '2024-12-06 16:28:52'),
-(41, 'test', 'test rani', '2024-12-06 23:56:21');
+(41, 'test', 'test rani', '2024-12-06 23:56:21'),
+(45, 'test33', 'd', '2024-12-08 08:46:50');
 
 -- --------------------------------------------------------
 
@@ -90,7 +91,7 @@ CREATE TABLE `products` (
 INSERT INTO `products` (`prod_id`, `photo`, `name`, `quantity`, `prod_brand`, `prod_model`, `sale_price`, `categorie_id`, `media_id`, `created_at`, `updated_at`) VALUES
 (50, NULL, 'Yamaha - PSR-E273', '0', 'Yamahas', 'PSR-E273', 12750.00, 23, 0, '2024-12-03 09:42:30', '2024-12-07 04:04:51'),
 (51, NULL, 'Yamaha - EZ-300', '2', 'Yamaha', 'EZ-300', 24800.00, 23, 0, '2024-12-03 09:43:09', '2024-12-08 07:54:23'),
-(52, NULL, 'Yamaha - PSR-E373', '4', 'Yamaha', 'E373', 17500.00, 23, 0, '2024-12-03 09:43:56', '2024-12-03 09:43:56'),
+(52, NULL, 'Yamaha - PSR-E373', '3', 'Yamaha', 'E373', 17500.00, 23, 0, '2024-12-03 09:43:56', '2024-12-03 09:43:56'),
 (53, NULL, 'Piaggero - UP-15', '0', 'Yamahad', 'UP-15', 10300.00, 23, 0, '2024-12-03 09:49:25', '2024-12-07 04:51:43'),
 (54, NULL, 'Yamaha - PSR-E473', '3', 'Yamaha', 'E373', 30800.00, 23, 0, '2024-12-03 09:50:54', '2024-12-03 09:50:54'),
 (55, NULL, 'Blueridge', '7', 'Capo', 'Blueridge', 120.00, 24, 0, '2024-12-03 09:52:23', '2024-12-03 09:52:23'),
@@ -154,7 +155,8 @@ INSERT INTO `sales` (`sales_id`, `product_id`, `qty`, `total_price`, `date`) VAL
 (41, 55, 1, 120.00, '2024-12-08'),
 (42, 56, 1, 120.00, '2024-12-08'),
 (43, 86, 1, 100.00, '2024-12-08'),
-(44, 51, 1, 24800.00, '2024-12-08');
+(44, 51, 1, 24800.00, '2024-12-08'),
+(45, 52, 1, 17500.00, '2024-12-08');
 
 -- --------------------------------------------------------
 
@@ -211,10 +213,11 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`User_id`, `name`, `username`, `password`, `user_level`, `image`, `status`, `last_login`) VALUES
-(51, 'dev', 'dev', 'a0f1490a20d0211c997b44bc357e1972deab8ae3', 1, 'no_image.jpg', 1, '2024-12-07 10:56:08'),
 (52, 'admin', 'admin', 'd033e22ae348aeb5660fc2140aec35850c4da997', 2, 'no_image.jpg', 1, '2024-12-06 11:39:37'),
 (54, 'admin2', 'admin2', '315f166c5aca63a157f7d41007675cb44a948b33', 1, 'no_image.jpg', 1, '2024-12-08 14:40:31'),
-(61, 'bro', 'bro', '71424f1db376666e5625da3dc57d0ccef35244a2', 1, 'no_image.jpg', 1, NULL);
+(61, 'bro', 'bro', '71424f1db376666e5625da3dc57d0ccef35244a2', 1, 'no_image.jpg', 1, NULL),
+(63, 'dev', 'dev', '34c6fceca75e456f25e7e99531e2425c6c1de443', 1, 'no_image.jpg', 1, '2024-12-08 16:52:09'),
+(64, 'test', 'test', 'a94a8fe5ccb19ba61c4c0873d391e987982fbbd3', 1, 'no_image.jpg', 1, NULL);
 
 -- --------------------------------------------------------
 
@@ -301,7 +304,7 @@ ALTER TABLE `user_groups`
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `category_id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
+  MODIFY `category_id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
 
 --
 -- AUTO_INCREMENT for table `media`
@@ -313,13 +316,13 @@ ALTER TABLE `media`
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `prod_id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=87;
+  MODIFY `prod_id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=88;
 
 --
 -- AUTO_INCREMENT for table `sales`
 --
 ALTER TABLE `sales`
-  MODIFY `sales_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
+  MODIFY `sales_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
 
 --
 -- AUTO_INCREMENT for table `stockhistory`
@@ -331,7 +334,7 @@ ALTER TABLE `stockhistory`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `User_id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=63;
+  MODIFY `User_id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=65;
 
 --
 -- AUTO_INCREMENT for table `user_groups`

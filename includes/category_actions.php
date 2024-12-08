@@ -67,9 +67,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['updateCat'])) {
     }
 }
 
-
-
-
 //delete category
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['catId'])) {
     $catId = $_GET['catId'];
