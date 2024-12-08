@@ -30,19 +30,25 @@ $message_type = "success";
                     <i class="fas fa-search"></i>
                 </button>
             </div>
-            <div class="container-fluid py-2">
+            <div class="horizontal-scrollbar-wrapper">
+                <div class="scroll-arrow start-arrow">
+                    <i class="fas fa-chevron-left"></i>
+                </div>
                 <div class="horizontal-scrollbar d-flex flex-row flex-nowrap">
                     <?php if (empty($categories)): ?>
                         <p>No categories found.</p>
                     <?php else: ?>
                         <?php foreach ($categories as $category): ?>
-                            <div class="card card-body m-2 card-highlight" style="width: 18rem;"
+                            <div class="card card-body m-2 card-highlight d-flex justify-content-center" style="width: 18rem;"
                                 onclick="loadCategoryProducts(<?= $category['category_id'] ?>)">
                                 <h5 class="card-title"><?= htmlspecialchars($category['name']) ?></h5>
-                                <p class="card-text"><?= date('F j, Y', strtotime($category['created_at'])) ?></p>
+                                <!-- <p class="card-text"><?= date('F j, Y', strtotime($category['created_at'])) ?></p> -->
                             </div>
                         <?php endforeach; ?>
                     <?php endif; ?>
+                </div>
+                <div class="scroll-arrow end-arrow">
+                    <i class="fas fa-chevron-right"></i>
                 </div>
             </div>
             <div class="d-flex flex-row justify-content-between gap-3">

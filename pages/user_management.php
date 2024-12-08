@@ -3,7 +3,6 @@ include('../layouts/header.php');
 require_once '../includes/load.php';
 
 require_login();
-$currentPage = basename($_SERVER['PHP_SELF'], '.php');
 
 // Initialize variables
 $itemsPerPage = isset($_GET['items_per_page']) ? (int) $_GET['items_per_page'] : 5;
@@ -42,10 +41,38 @@ $users = $query->fetchAll(PDO::FETCH_ASSOC);
 $user_levels = [1 => 'Developer', 2 => 'Admin', 3 => 'Staff'];
 $statuses = [1 => 'Active', 0 => 'Inactive'];
 
+// Check if AJAX request to update table
+if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest') {
+    // Return only table rows
+    ob_start();
+    if (!empty($users)) {
+        foreach ($users as $index => $user) {
+            echo '<tr>';
+            echo '<td class="text-center">' . ($offset + $index + 1) . '</td>';
+            echo '<td>' . htmlspecialchars($user['name']) . '</td>';
+            echo '<td>' . htmlspecialchars($user['username']) . '</td>';
+            echo '<td>' . $user_levels[$user['user_level']] . '</td>';
+            echo '<td>' . $statuses[$user['status']] . '</td>';
+            echo '<td class="text-center">' . ($user['last_login'] ? date('F j, Y, g:i:s a', strtotime($user['last_login'])) : 'Not logged in') . '</td>';
+            echo '<td class="text-center d-flex justify-content-center gap-2">
+                    <button type="button" class="editU-btn btn-secondary" data-bs-toggle="modal" data-bs-target="#editUserModal_' . $user['User_id'] . '"><i class="ri-pencil-line"></i></button>
+                    <button type="button" class="deleteU-btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteUserModal_' . $user['User_id'] . '"><i class="ri-delete-bin-line"></i></button>
+                </td>';
+            echo '</tr>';
+        }
+    } else {
+        echo '<tr><td colspan="7">No users found.</td></tr>';
+    }
+    $tableContent = ob_get_clean();
+    echo $tableContent;
+    exit;
+}
+
+
 $message = isset($_GET['message']) ? $_GET['message'] : '';
 $message_type = isset($_GET['message_type']) ? $_GET['message_type'] : '';
-
 ?>
+
 <!-- Include toastr CSS -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 <link rel="stylesheet" href="../lib/usermanagement/userstyle.css">
@@ -73,13 +100,16 @@ $message_type = isset($_GET['message_type']) ? $_GET['message_type'] : '';
                         <div class="show-entries">
                             <span>Show</span>
                             <select class="form-control" name="items_per_page" onchange="this.form.submit()">
-                                <?php foreach ([5, 10, 15, 20] as $value): ?>
+                                <?php
+                                $entriesOptions = [50, 100, 150, 200];
+                                $maxItemsPerPage = min($totalItems, max($entriesOptions));
+                                foreach ($entriesOptions as $value): ?>
                                     <option value="<?= $value ?>" <?= $itemsPerPage == $value ? 'selected' : '' ?>>
                                         <?= $value ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
-                            <span>Categories</span>
+                            <span>Entries</span>
                         </div>
                     </div>
                     <div class="col-sm-9">
@@ -167,6 +197,7 @@ $message_type = isset($_GET['message_type']) ? $_GET['message_type'] : '';
         </div>
     </div>
 </main>
+
 
 <!-- Create User Modal -->
 <div class="modal fade" tabindex="-1" role="dialog" id="createUserModal">
@@ -315,6 +346,33 @@ while ($row = $stmt->fetch()) {
         </div>
     </div>
 <?php } ?>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const searchInput = document.querySelector('input[name="search"]');
+        const tableBody = document.querySelector('table tbody');
+        const itemsPerPage = document.querySelector('select[name="items_per_page"]');
+
+        // Event listener for real-time search
+        searchInput.addEventListener('input', function () {
+            const searchValue = searchInput.value.trim();
+            const itemsPerPageValue = itemsPerPage.value;
+
+            // Make an AJAX request to get filtered data
+            fetch(`?search=${searchValue}&items_per_page=${itemsPerPageValue}`)
+                .then(response => response.text())
+                .then(data => {
+                    // Update the table with the new data
+                    const startIndex = data.indexOf('<tbody>');
+                    const endIndex = data.indexOf('</tbody>');
+                    if (startIndex !== -1 && endIndex !== -1) {
+                        tableBody.innerHTML = data.substring(startIndex + 7, endIndex);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        });
+    });
+</script>
+
 
 <!-- Include toastr JS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>

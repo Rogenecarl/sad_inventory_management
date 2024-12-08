@@ -8,7 +8,7 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
     <h1 class="dash-fix">List</h1>
     <div class="main__container">
         <h1>Cards section here</h1>
-        <p>for the totala Products </p>
+        <p>Products Stocks Levels </p>
     </div>
 </main>
 

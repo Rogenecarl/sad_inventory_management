@@ -12,7 +12,7 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
 
     <h1 class="dash-fix">Sales By Dates</h1>
     <div class="main__container">
-        <form action="process_sales.php" method="POST" class="date-picker-form">
+        <form action="../includes/process_sales.php" method="POST" class="date-picker-form">
             <label for="from-date">From:</label>
             <input type="date" id="from-date" name="from_date" required>
 
@@ -21,6 +21,7 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
 
             <button type="submit" class="generate-btn">Generate</button>
         </form>
+
     </div>
 </main>
 

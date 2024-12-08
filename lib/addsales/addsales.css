@@ -15,6 +15,7 @@
 .card:hover {
   transform: translateY(-5px);
   box-shadow: 0 8px 12px rgba(27, 26, 26, 0.15);
+  cursor: pointer;
 }
 
 .card-highlight {
@@ -43,6 +44,27 @@
   color: #00796b; /* Muted teal for the date text */
 }
 
+.horizontal-scrollbar-wrapper {
+  position: relative;
+}
+
+.scroll-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 24px;
+  color: #ccc;
+  cursor: pointer;
+}
+
+.start-arrow {
+  left: 0;
+}
+
+.end-arrow {
+  right: 0;
+}
+
 .horizontal-scrollbar {
   overflow-x: auto;
   padding-bottom: 10px;
@@ -67,6 +89,27 @@
   .card {
     width: 14rem;
   }
+}
+
+.scroll-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 24px;
+  color: #ccc;
+  cursor: pointer;
+}
+
+.start-arrow {
+  left: 0;
+}
+
+.end-arrow {
+  right: 0;
+}
+
+.scroll-arrow:hover {
+  color: #666;
 }
 
 /* .horizontal-scrollbar {
