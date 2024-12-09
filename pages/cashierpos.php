@@ -17,6 +17,8 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Point of Sales</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -28,6 +30,9 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <body>
     <nav class="text-center d-flex justify-content-center align-items-center">Point Of Sales</nav>
     <main class="p-2">
+        <div class="filterSearch">
+            <input type="text" id="searchInput" placeholder="Search by categoty name">
+        </div>
         <div class="horizontal-scrollbar-wrapper">
             <div class="horizontal-scrollbar d-flex flex-row flex-nowrap" style="width: 62rem">
                 <?php if (empty($categories)): ?>
@@ -43,6 +48,9 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
         </div>
         <div class="table p-2" style="height: 70vh; overflow-y: auto;">
+            <div class="filtersearch">
+                <input type="text" id="searchInput" placeholder="Search by product name">
+            </div>
             <table id="product-table" class="table table-bordered">
                 <thead>
                     <tr>

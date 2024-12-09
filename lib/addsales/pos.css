@@ -5,30 +5,35 @@
 }
 
 body {
+  font-family: 'Roboto', sans-serif;
   display: grid;
   grid-template-columns: 2fr 1fr;
   grid-template-rows: 3rem calc(100vh - 3rem);
-  grid-template-areas:
-    "navbar navbar"
-    "main sidebar";
+  grid-template-areas: "navbar navbar" "main sidebar";
   column-gap: 0.5rem;
+  background-color: #f4f6f9;
 }
 
-nav{
+nav {
   height: 3rem;
-  top: 0;
   position: sticky;
+  top: 0;
   grid-area: navbar;
-  background-color: rgb(0, 0, 0);
+  background-color: #004d40;
   color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2rem;
+  font-weight: 600;
 }
 
-aside{
+aside {
   height: calc(100vh - 3rem);
-  position: sticky;
-  align-self: start;
   grid-area: sidebar;
-  background-color: rgb(255, 255, 255);
+  background-color: #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
 }
 
 .card-body {
@@ -39,27 +44,17 @@ aside{
 .card {
   border: none;
   background-color: #ffffff;
-  border: 1px solid #ddd;
+  border: 1px solid #e0e0e0;
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
 }
 
 .card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 12px rgba(27, 26, 26, 0.15);
-  cursor: pointer;
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
 }
-
-/* .card-highlight {
-  width: 12rem;
-  text-align: center;
-  background-color: #ffffff;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s;
-} */
 
 .card-inner {
   padding: 20px;
@@ -68,57 +63,125 @@ aside{
 .card-title {
   font-size: 1.2rem;
   font-weight: 600;
-  color: #000000;
+  color: #00796b;
   margin-bottom: 10px;
 }
 
 .card-text {
   font-size: 0.9rem;
-  color: #00796b; 
+  color: #004d40;
 }
 
 .horizontal-scrollbar-wrapper {
   position: relative;
-  width: 50%;
-}
-
-.scroll-arrow {
-  position: absolute;
-  /* top: 50%;
-  transform: translateY(-50%);
-  font-size: 24px;
-  color: #ccc; */
-  cursor: pointer;
-}
-
-.start-arrow {
-  left: 0;
-}
-
-.end-arrow {
-  right: 0;
+  width: 100%;
 }
 
 .horizontal-scrollbar {
   overflow-x: auto;
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  flex-wrap: nowrap;
 }
 
-/* .horizontal-scrollbar::-webkit-scrollbar {
-  height: 6px;
-  display: none;
-} */
-
-.horizontal-scrollbar::-webkit-scrollbar-thumb {
-  background-color: #bbb;
-  border-radius: 3px;
+.card-highlight {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  background-color: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  cursor: pointer;
 }
 
-.horizontal-scrollbar::-webkit-scrollbar-track {
-  background: #f0f0f0;
+.card-highlight:hover {
+  background-color: #00796b;
+  color: white;
+  transform: translateY(-4px);
 }
 
-@media (max-width: 576px) {
-  .card {
-    width: 14rem;
-  }
+table {
+  width: 100%;
+  margin-top: 1rem;
+  border-collapse: collapse;
+  background-color: white;
+}
+
+table th, table td {
+  padding: 10px;
+  text-align: center;
+  border-bottom: 1px solid #ddd;
+}
+
+table th {
+  background-color: #00796b;
+  color: white;
+  font-weight: 600;
+}
+
+table td button {
+  background-color: #004d40;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+table td button:hover {
+  background-color: #003d33;
+}
+
+input[type="number"] {
+  padding: 0.5rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  width: 50px;
+}
+
+footer {
+  margin-top: auto;
+}
+
+#grand-total {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #00796b;
+}
+
+#confirm-purchase-btn {
+  background-color: #00796b;
+  color: white;
+  border-radius: 10px;
+  padding: 0.8rem 1.5rem;
+  border: none;
+  font-weight: 600;
+  margin-top: 1rem;
+}
+
+#confirm-purchase-btn:hover {
+  background-color: #004d40;
+}
+
+.modal-content {
+  border-radius: 10px;
+  padding: 1rem;
+}
+
+.modal-header {
+  background-color: #004d40;
+  color: white;
+}
+
+.modal-footer .btn {
+  background-color: #00796b;
+  color: white;
+}
+
+.modal-footer .btn:hover {
+  background-color: #004d40;
 }
