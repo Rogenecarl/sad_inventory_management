@@ -1,5 +1,4 @@
 <?php
-include('../layouts/header.php');
 require_once '../includes/load.php';
 
 require_login();
@@ -11,14 +10,19 @@ $stmt->execute();
 $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 ?>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.css" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-<link rel="stylesheet" href="../lib/addsales/addsales.css">
+<link rel="stylesheet" href="../lib/addsales/pos.css">
 
-<main class="main container" id="main">
-    <?php include('../layouts/sidebar.php'); ?>
+<main class="main" id="main">
     <h1 class="dash-fix">Add Sales</h1>
     <div class="main__container">
+        
         <div class="d-flex flex-column">
             <div class="input-group">
                 <div class="form-outline" data-mdb-input-init>
@@ -272,10 +276,12 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+    crossorigin="anonymous"></script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-
-
 
 <?php include '../toast/toastr.php'; ?>
 

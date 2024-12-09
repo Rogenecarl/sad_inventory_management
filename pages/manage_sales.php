@@ -6,9 +6,9 @@ require_login();
 $currentPage = basename($_SERVER['PHP_SELF'], '.php');
 
 // Default values for pagination and search
-$itemsPerPage = isset($_GET['items_per_page']) ? (int)$_GET['items_per_page'] : 5;
+$itemsPerPage = isset($_GET['items_per_page']) ? (int) $_GET['items_per_page'] : 50;
 $searchKeyword = isset($_GET['search']) ? trim($_GET['search']) : '';
-$currentPageNumber = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$currentPageNumber = isset($_GET['page']) ? (int) $_GET['page'] : 1;
 
 // Calculate offset for pagination
 $offset = ($currentPageNumber - 1) * $itemsPerPage;
@@ -20,7 +20,7 @@ $totalItemsQuery = "SELECT COUNT(DISTINCT s.product_id) as total
                     WHERE p.name LIKE :search";
 $stmt = $conn->prepare($totalItemsQuery);
 $stmt->execute([':search' => '%' . $searchKeyword . '%']);
-$totalItems = (int)$stmt->fetchColumn();
+$totalItems = (int) $stmt->fetchColumn();
 $totalPages = ceil($totalItems / $itemsPerPage);
 
 // Fetch paginated results
@@ -50,7 +50,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="table-title">
             <div class="d-flex justify-content-between">
                 <div class="col-sm-4">
-                    <h2>Categories</h2>
+                    <h2>Manage sales</h2>
                 </div>
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                     data-bs-target="#createProductModal">
@@ -66,12 +66,12 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <div class="show-entries">
                             <span>Show</span>
                             <select class="form-control" name="items_per_page" onchange="this.form.submit()">
-                                <option value="5" <?= $itemsPerPage == 5 ? 'selected' : '' ?>>5</option>
-                                <option value="10" <?= $itemsPerPage == 10 ? 'selected' : '' ?>>10</option>
-                                <option value="15" <?= $itemsPerPage == 15 ? 'selected' : '' ?>>15</option>
-                                <option value="20" <?= $itemsPerPage == 20 ? 'selected' : '' ?>>20</option>
+                                <option value="50" <?= $itemsPerPage == 50 ? 'selected' : '' ?>>50</option>
+                                <option value="100" <?= $itemsPerPage == 100 ? 'selected' : '' ?>>100</option>
+                                <option value="150" <?= $itemsPerPage == 150 ? 'selected' : '' ?>>150</option>
+                                <option value="200" <?= $itemsPerPage == 200 ? 'selected' : '' ?>>200</option>
                             </select>
-                            <span>Categories</span>
+                            <span>Products</span>
                         </div>
                     </div>
                     <div class="col-sm-9">
@@ -105,7 +105,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <td class="text-center"><?= $counter++ ?></td>
                             <td class="text-center"><?= htmlspecialchars($row['name']) ?></td>
                             <td class="text-center"><?= htmlspecialchars($row['total_qty']) ?></td>
-                            <td ><?= date('F j, Y, g:i:s A') ?></td>
+                            <td><?= date('F j, Y, g:i:s A') ?></td>
                             <td class="text-center"><?= '₱ ' . number_format($row['total_price'], 0) ?></td>
                         </tr>
                     <?php endforeach; ?>
@@ -115,7 +115,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         <!-- Pagination -->
         <div class="clearfix">
-            <div class="hint-text">Showing <b><?= count($categories) ?></b> out of <b><?= $totalItems ?></b> entries
+            <div class="hint-text">Showing <b><?= count($categories) ?></b> out of <b><?= $totalItems ?></b> Products
             </div>
             <ul class="pagination">
                 <li class="page-item <?= $currentPageNumber == 1 ? 'disabled' : '' ?>">

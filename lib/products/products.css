@@ -283,3 +283,26 @@ table.table .avatar {
 .view-icon i {
   font-size: 18px;
 }
+
+.Stocks-box {
+  padding: 7px 14px;
+  font-size: 13px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  justify-self: center;
+  align-items: center;
+  display: flex;
+  font-weight: bold;
+}
+
+.Stocks-box {
+  background-color: #2c93c0;
+  color: #fff;
+}
+
+.Stocks-box:hover {
+  background-color: #1863a0;
+}
+

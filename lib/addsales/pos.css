@@ -1,3 +1,36 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  grid-template-rows: 3rem calc(100vh - 3rem);
+  grid-template-areas:
+    "navbar navbar"
+    "main sidebar";
+  column-gap: 0.5rem;
+}
+
+nav{
+  height: 3rem;
+  top: 0;
+  position: sticky;
+  grid-area: navbar;
+  background-color: rgb(0, 0, 0);
+  color: white;
+}
+
+aside{
+  height: calc(100vh - 3rem);
+  position: sticky;
+  align-self: start;
+  grid-area: sidebar;
+  background-color: rgb(255, 255, 255);
+}
+
 .card-body {
   min-height: 100px;
   min-width: 160px;
@@ -18,7 +51,7 @@
   cursor: pointer;
 }
 
-.card-highlight {
+/* .card-highlight {
   width: 12rem;
   text-align: center;
   background-color: #ffffff;
@@ -26,7 +59,7 @@
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s;
-}
+} */
 
 .card-inner {
   padding: 20px;
@@ -46,6 +79,7 @@
 
 .horizontal-scrollbar-wrapper {
   position: relative;
+  width: 50%;
 }
 
 .scroll-arrow {
@@ -87,84 +121,4 @@
   .card {
     width: 14rem;
   }
-}
-
-.scroll-arrow {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 24px;
-  color: #ccc;
-  cursor: pointer;
-}
-
-.start-arrow {
-  left: 0;
-}
-
-.end-arrow {
-  right: 0;
-}
-
-.scroll-arrow:hover {
-  color: #666;
-}
-
-/* .horizontal-scrollbar {
-  overflow-x: auto;
-  overflow-y: hidden;
-  white-space: nowrap;
-} */
-
-/* .horizontal-scrollbar::-webkit-scrollbar {
-  width: 5px;
-  border-radius: 10px;
-}
-
-.horizontal-scrollbar::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 10px;
-}
-
-.horizontal-scrollbar::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 10px;
-}
-
-.horizontal-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #555;
-  border-radius: 10px;
-} */
-
-.searchcartegory {
-  width: 200px;
-  background-color: #f1f1f1;
-  border-bottom: 1px solid #ccc;
-}
-
-.searchcartegory i {
-  color: #888;
-}
-
-#search-input {
-  padding: 5px;
-  font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-#search-input:focus {
-  border-color: #aaa;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-.main__container {
-  max-height: 600px;
-  overflow-y: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.main__container::-webkit-scrollbar {
-  display: none;
 }

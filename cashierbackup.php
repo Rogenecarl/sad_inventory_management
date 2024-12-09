@@ -1,5 +1,4 @@
 <?php
-include('../layouts/header.php');
 require_once '../includes/load.php';
 
 require_login();
@@ -11,94 +10,83 @@ $stmt->execute();
 $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 ?>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.css" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-<link rel="stylesheet" href="../lib/addsales/addsales.css">
+<link rel="stylesheet" href="../lib/addsales/pos.css">
 
-<main class="main container" id="main">
-    <?php include('../layouts/sidebar.php'); ?>
-    <h1 class="dash-fix">Add Sales</h1>
-    <div class="main__container">
-        <div class="d-flex flex-column">
-            <div class="input-group">
-                <div class="form-outline" data-mdb-input-init>
-                    <input type="search" id="form1" placeholder="Search" class="form-control" />
-                </div>
-                <button type="button" class="btn btn-primary" data-mdb-ripple-init>
-                    <i class="fas fa-search"></i>
-                </button>
-            </div>
-            <div class="horizontal-scrollbar-wrapper">
-                <div class="scroll-arrow start-arrow">
-                    <i class="fas fa-chevron-left"></i>
-                </div>
-                <div class="horizontal-scrollbar d-flex flex-row flex-nowrap">
-                    <?php if (empty($categories)): ?>
-                        <p>No categories found.</p>
-                    <?php else: ?>
-                        <?php foreach ($categories as $category): ?>
-                            <div class="card card-body m-2 card-highlight d-flex justify-content-center" style="width: 18rem;"
-                                onclick="loadCategoryProducts(<?= $category['category_id'] ?>)">
-                                <h5 class="card-title"><?= htmlspecialchars($category['name']) ?></h5>
-                                <!-- <p class="card-text"><?= date('F j, Y', strtotime($category['created_at'])) ?></p> -->
-                            </div>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </div>
-                <div class="scroll-arrow end-arrow">
-                    <i class="fas fa-chevron-right"></i>
-                </div>
-            </div>
-            <div class="d-flex flex-row justify-content-between gap-3">
-                <div class="card p-2 flex-grow-1">
-                    <div class="categoryproduct-table card-body">
-                        <h1>Products Table</h1>
-                        <table id="product-table" class="table table-striped table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Photo</th>
-                                    <th>Product Name</th>
-                                    <th>Brand</th>
-                                    <th>Model</th>
-                                    <th>Stocks</th>
-                                    <th>Price</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- This will Dsiplay the Products -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="card p-2">
-                    <div class="table card-body">
-                        <h1>Sales Table</h1>
-                        <table class="table sales-table">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Product Name</th>
-                                    <th>Quantity</th>
-                                    <th>Price</th>
-                                    <th>Total</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="sales-table-body"></tbody>
-                        </table>
-                        <div class="text-end">
-                            <h3 id="grand-total">Grand Total: ₱0.00</h3>
-                            <button class="btn btn-primary" id="confirm-purchase-btn" data-bs-toggle="modal"
-                                data-bs-target="#confirmPurchaseModal">Confirm Purchase</button>
+<body>
+    <nav class="text-center d-flex justify-content-center align-items-center">Point Of Sales</nav>
+    <main class="p-2">
+        <div class="horizontal-scrollbar-wrapper" style="width: ">
+            <div class="horizontal-scrollbar d-flex flex-row flex-nowrap" style="width: 62rem">
+                <?php if (empty($categories)): ?>
+                    <p>No categories found.</p>
+                <?php else: ?>
+                    <?php foreach ($categories as $category): ?>
+                        <div class="card card-body p-2 m-2 card-highlight d-flex justify-content-center" style="width: 18rem;"
+                            onclick="loadCategoryProducts(<?= $category['category_id'] ?>)">
+                            <h5 class="card-title"><?= htmlspecialchars($category['name']) ?></h5>
+                            <!-- <p class="card-text"><?= date('F j, Y', strtotime($category['created_at'])) ?></p> -->
                         </div>
-                    </div>
-                </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </div>
         </div>
-    </div>
-</main>
+        <div class="table p-2" style="height: 70vh; overflow-y: auto;">
+            <table id="product-table" class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Photo</th>
+                        <th>Product Name</th>
+                        <th>Brand</th>
+                        <th>Model</th>
+                        <th>Stocks</th>
+                        <th>Price</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </main>
+    <aside class="d-flex flex-column">
+        <div class="header p-2 m-3 d-flex justify-content-center"
+            style="height: 3rem; background-color: #e9e9e9; border-radius: 10px">
+            <h3>Products Cart</h3>
+        </div>
+        <div class="OrderNum m-2">
+            <h5>Purchase ID No. <input type="number"></input></h5>
+        </div>
+        <div class="table p-2" style="height: 58vh; overflow-y: auto;">
+            <table id="product-table" class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Product Name</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Total</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="sales-table-body"></tbody>
+            </table>
+        </div>
+        <div class="footer">
+            <div class="text-end m-3 align-self-end">
+                <h3 id="grand-total">Grand Total: ₱0.00</h3>
+                <button class="btn btn-primary" id="confirm-purchase-btn" data-bs-toggle="modal"
+                    data-bs-target="#confirmPurchaseModal">Confirm Purchase</button>
+            </div>
+        </div>
+    </aside>
+</body>
 
 <!-- Confirm Purchase Modal -->
 <div class="modal fade" id="confirmPurchaseModal" tabindex="-1" aria-labelledby="confirmPurchaseModalLabel"
@@ -205,18 +193,18 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
             const totalCost = p.price * p.quantity;
             total += totalCost;
             tableBody.innerHTML += `
-            <tr>
-                <td>${i + 1}</td>
-                <td>${p.name}</td>
-                <td>
-                    <input type="number" class="quantity-input" value="${p.quantity}" data-id="${p.id}" min="1" />
-                </td>
-                <td>${p.price}</td>
-                <td>${totalCost}</td>
-                <td>
-                    <button class="btn btn-danger remove-btn" data-id="${p.id}"><i class="fas fa-minus"></i></button>
-                </td>
-            </tr>`;
+        <tr class="text-center">
+            <td>${i + 1}</td>
+            <td>${p.name}</td>
+            <td>
+                <input type="number" class="quantity-input form-control-sm" value="${p.quantity}" data-id="${p.id}" min="1" maxlength="4" />
+            </td>
+            <td>${p.price}</td>
+            <td>${totalCost}</td>
+            <td>
+                <button class="btn btn-danger remove-btn" data-id="${p.id}"><i class="fas fa-minus"></i></button>
+            </td>
+        </tr>`;
         });
         document.getElementById("grand-total").textContent = `Grand Total: ₱${total}`;
     }
@@ -272,10 +260,12 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+    crossorigin="anonymous"></script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-
-
 
 <?php include '../toast/toastr.php'; ?>
 

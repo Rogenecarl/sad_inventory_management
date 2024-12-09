@@ -20,7 +20,7 @@ body {
   padding: 45px 40px 45px 40px;
   text-align: center;
   border-radius: 16px;
-  box-shadow: 0 0 20px 0 rgba(159, 39, 39, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
+  /* box-shadow: 0 0 20px 0 rgba(159, 39, 39, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24); */
 }
 .form input {
   font-family: "Poppins", sans-serif;

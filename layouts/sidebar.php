@@ -46,8 +46,8 @@
               <i class="ri-product-hunt-line"></i>
               <span>Products</span>
             </a>
-            <a href="print_products.php"
-              class="sidebar__link <?= ($currentPage == 'print_products') ? 'active-link' : '' ?>">
+            <a href="Stock_levels.php"
+              class="sidebar__link <?= ($currentPage == 'Stock_levels') ? 'active-link' : '' ?>">
               <i class="ri-printer-line"></i>
               <span>Stock Levels</span>
             </a>
@@ -66,9 +66,9 @@
               <i class="ri-file-chart-line"></i>
               <span>Manage Sales</span>
             </a>
-            <a href="add_sales.php" class="sidebar__link <?= ($currentPage == 'add_sales') ? 'active-link' : '' ?>">
+            <a href="Invoice.php" class="sidebar__link <?= ($currentPage == 'Invoice') ? 'active-link' : '' ?>">
               <i class="ri-add-circle-line"></i>
-              <span>Add Sales</span>
+              <span>Invoice</span>
             </a>
           </div>
 

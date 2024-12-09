@@ -3,7 +3,9 @@ include('../layouts/header.php');
 require_once '../includes/load.php';
 
 require_login();
-$itemsPerPage = isset($_GET['items_per_page']) ? (int) $_GET['items_per_page'] : 5;
+$currentPage = basename($_SERVER['PHP_SELF'], '.php');
+
+$itemsPerPage = isset($_GET['items_per_page']) ? (int) $_GET['items_per_page'] : 50;
 $searchKeyword = isset($_GET['search']) ? trim($_GET['search']) : '';
 $currentPageNumber = isset($_GET['page']) ? (int) $_GET['page'] : 1;
 
@@ -99,7 +101,7 @@ $message_type = isset($_GET['message_type']) ? $_GET['message_type'] : '';
                                     </option>
                                 <?php endforeach; ?>
                             </select>
-                            <span>Entries</span>
+                            <span>Users</span>
                         </div>
                     </div>
                     <div class="col-sm-9">
@@ -167,7 +169,7 @@ $message_type = isset($_GET['message_type']) ? $_GET['message_type'] : '';
 
         <!-- Pagination -->
         <div class="clearfix">
-            <div class="hint-text">Showing <b><?= count($users) ?></b> out of <b><?= $totalItems ?></b> entries</div>
+            <div class="hint-text">Showing <b><?= count($users) ?></b> out of <b><?= $totalItems ?></b> Users</div>
             <ul class="pagination">
                 <li class="page-item <?= $currentPageNumber <= 1 ? 'disabled' : '' ?>">
                     <a href="?page=<?= max(1, $currentPageNumber - 1) ?>&items_per_page=<?= $itemsPerPage ?>&search=<?= htmlspecialchars($searchKeyword) ?>"
@@ -216,7 +218,7 @@ $message_type = isset($_GET['message_type']) ? $_GET['message_type'] : '';
                         <select class="form-select" name="role" required>
                             <option value="1">Developer</option>
                             <option value="2">Admin</option>
-                            <option value="3">Staff</option>
+                            <option value="3">Cashier</option>
                         </select>
                     </div>
                     <div class="form-group">

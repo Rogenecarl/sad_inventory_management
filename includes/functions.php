@@ -31,7 +31,10 @@ function login_user($user)
         header("Location: pages/dev_dashboard.php");
     } elseif ($user['user_level'] == 2) {
         header("Location: pages/admin_dashboard.php");
-    } else {
+    } elseif ($user['user_level'] == 3) {
+        header("Location: pages/cashierpos.php");
+    } 
+    else {
         header("Location: ../index.php");
     }
     exit();
