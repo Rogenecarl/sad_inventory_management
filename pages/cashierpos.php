@@ -308,40 +308,40 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                         // Create the receipt content
                         let receiptContent = `
-                <h3 style="text-align: center;">Receipt</h3>
-                <p><strong>Transaction ID:</strong> ${transactionId}</p>
-                <table style="width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 20px;">
-                    <thead>
-                        <tr>
-                            <th style="text-align: left; padding: 5px; border: 1px solid #000;">Product</th>
-                            <th style="text-align: left; padding: 5px; border: 1px solid #000;">Quantity</th>
-                            <th style="text-align: left; padding: 5px; border: 1px solid #000;">Price</th>
-                            <th style="text-align: left; padding: 5px; border: 1px solid #000;">Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>`;
+                    <h3 style="text-align: center;">Receipt</h3>
+                    <p><strong>Transaction ID:</strong> ${transactionId}</p>
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 20px;">
+                        <thead>
+                            <tr>
+                                <th style="text-align: left; padding: 5px; border: 1px solid #000;">Product</th>
+                                <th style="text-align: left; padding: 5px; border: 1px solid #000;">Quantity</th>
+                                <th style="text-align: left; padding: 5px; border: 1px solid #000;">Price</th>
+                                <th style="text-align: left; padding: 5px; border: 1px solid #000;">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
 
                         // Loop through each product in the sales data and add them to the receipt
                         salesData.forEach(item => {
                             const itemTotal = item.price * item.quantity;
                             receiptContent += `
-                    <tr>
-                        <td style="padding: 5px; border: 1px solid #000;">${item.name}</td>
-                        <td style="padding: 5px; border: 1px solid #000;">${item.quantity}</td>
-                        <td style="padding: 5px; border: 1px solid #000;">₱${item.price.toFixed(2)}</td>
-                        <td style="padding: 5px; border: 1px solid #000;">₱${itemTotal.toFixed(2)}</td>
-                    </tr>`;
+                        <tr>
+                            <td style="padding: 5px; border: 1px solid #000;">${item.name}</td>
+                            <td style="padding: 5px; border: 1px solid #000;">${item.quantity}</td>
+                            <td style="padding: 5px; border: 1px solid #000;">₱${item.price.toFixed(2)}</td>
+                            <td style="padding: 5px; border: 1px solid #000;">₱${itemTotal.toFixed(2)}</td>
+                        </tr>`;
                         });
 
                         receiptContent += `
-                    </tbody>
-                </table>
-                <p><strong>Grand Total:</strong> ₱${total.toFixed(2)}</p>
-                <p><strong>Payment Method:</strong> ${paymentMethod}</p>
-                <p><strong>User Money:</strong> ₱${userMoney.toFixed(2)}</p>
-                <p><strong>Change:</strong> ₱${change.toFixed(2)}</p>
-                <p style="text-align: center; margin-top: 20px;">Thank you for your purchase!</p>
-            `;
+                        </tbody>
+                    </table>
+                    <p><strong>Grand Total:</strong> ₱${total.toFixed(2)}</p>
+                    <p><strong>Payment Method:</strong> ${paymentMethod}</p>
+                    <p><strong>User Money:</strong> ₱${userMoney.toFixed(2)}</p>
+                    <p><strong>Change:</strong> ₱${change.toFixed(2)}</p>
+                    <p style="text-align: center; margin-top: 20px;">Thank you for your purchase!</p>
+                `;
 
                         // Show the receipt modal with the generated content
                         document.getElementById("receiptContent").innerHTML = receiptContent;
@@ -360,7 +360,6 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     }
                 });
         });
-
 
 
 
