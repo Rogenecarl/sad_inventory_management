@@ -123,6 +123,19 @@ $totalProductsSoldStmt->bindParam(':selected_year', $selectedYear, PDO::PARAM_IN
 $totalProductsSoldStmt->execute();
 $totalProductsSold = $totalProductsSoldStmt->fetch(PDO::FETCH_ASSOC)['total_products_sold'] ?? 0; // Default to 0 if no data
 
+// highest selling products for the chart
+$highestSellingStmt = $conn->prepare("
+    SELECT p.name, SUM(s.qty) AS total_quantity
+    FROM sales s
+    JOIN products p ON s.product_id = p.prod_id
+    GROUP BY s.product_id
+    ORDER BY total_quantity DESC
+    LIMIT 10
+");
+$highestSellingStmt->execute();
+$highestSellingProducts = $highestSellingStmt->fetchAll(PDO::FETCH_ASSOC);
+
+
 ?>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -213,10 +226,11 @@ $totalProductsSold = $totalProductsSoldStmt->fetch(PDO::FETCH_ASSOC)['total_prod
         <div class="d-flex flex-row flex-wrap justify-content-between gap-3 mb-3">
             <div class="card p-2 flex-grow-1" style="width: 24.4rem; align-items:unset;">
                 <div class="card-body">
-                    <h5 class="card-title">Highest Selling Products</h5>
+                    <h5 class="card-title">Top 10 Highest-Selling Products</h5>
                     <canvas id="highestSellingProductsChart"></canvas>
                 </div>
             </div>
+
             <div class="card" style="width: 24.4rem;">
                 <div class="card-body">
                     <h5 class="card-title text-center">Latest Sales</h5>
@@ -244,17 +258,9 @@ $totalProductsSold = $totalProductsSoldStmt->fetch(PDO::FETCH_ASSOC)['total_prod
             </div>
         </div>
 
-        <div class="d-flex flex-row flex-wrap justify-content-between gap-3">
-            <div class="card p-2 flex-grow-1" style="width: 24.4rem; align-items:unset;">
-                <div class="card-body">
-                    <h5 class="card-title">Low Stocks Products</h5>
-                    <canvas id="highestSellingProductsChart"></canvas>
-                </div>
-            </div>
-        </div>
 
     </div>
-        
+
 </main>
 
 <script>
@@ -295,7 +301,7 @@ $totalProductsSold = $totalProductsSoldStmt->fetch(PDO::FETCH_ASSOC)['total_prod
                 backgroundColor: 'rgba(255, 99, 132, 0.2)',
                 borderColor: 'rgba(255, 99, 132, 1)',
                 borderWidth: 1,
-                yAxisID: 'ySales' 
+                yAxisID: 'ySales'
             }
         ]
     };
@@ -343,6 +349,55 @@ $totalProductsSold = $totalProductsSoldStmt->fetch(PDO::FETCH_ASSOC)['total_prod
     const ctx = document.getElementById('monthlySalesChart').getContext('2d');
     new Chart(ctx, config);
 
+    // Data for the highest selling products chart
+    const highestSellingData = {
+        labels: <?php echo json_encode(array_column($highestSellingProducts, 'name')); ?>,
+        datasets: [{
+            label: 'Quantity Sold',
+            data: <?php echo json_encode(array_column($highestSellingProducts, 'total_quantity')); ?>,
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 1
+        }]
+    };
+
+    // Chart configuration
+    const highestSellingConfig = {
+        type: 'bar',
+        data: highestSellingData,
+        options: {
+            indexAxis: 'y', // Make the chart horizontal
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                title: {
+                    display: true,
+                    text: 'Top 10 Highest-Selling Products'
+                }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Quantity Sold'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Products'
+                    }
+                }
+            }
+        }
+    };
+
+    // Render the chart
+    const highestSellingCtx = document.getElementById('highestSellingProductsChart').getContext('2d');
+    new Chart(highestSellingCtx, highestSellingConfig);
 </script>
 
 

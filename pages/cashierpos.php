@@ -1,10 +1,13 @@
 <?php
 require_once '../includes/load.php';
-require_login();
+
+if (!isset($_SESSION['user_level']) || $_SESSION['user_level'] != 3) {
+    header("Location: ../index.php");
+    exit();
+}
 
 $currentPage = basename($_SERVER['PHP_SELF'], '.php');
 
-// Fetch categories from the database
 $stmt = $conn->prepare("SELECT category_id, name, created_at FROM categories");
 $stmt->execute();
 $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -73,7 +76,6 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <h3>Products Cart</h3>
         </div>
         <div class="TransactionNum m-2">
-            <!-- Display transaction_id and make it readonly -->
             <h5>Transaction ID No. <input type="text" id="transaction-id" readonly></h5>
         </div>
 
