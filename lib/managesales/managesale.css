@@ -192,7 +192,6 @@ table.table .avatar {
   line-height: 10px;
 }
 
-
 .pagination {
   float: right;
   margin: 0 0 5px;
@@ -238,7 +237,6 @@ table.table .avatar {
   font-size: 13px;
 }
 
-
 .editU-btn,
 .deleteU-btn {
   padding: 5px 9px;
@@ -273,4 +271,82 @@ table.table .avatar {
 .editU-btn i,
 .deleteU-btn i {
   font-size: 18px;
+}
+
+/* Style the modal for better design and usability */
+.modal-content {
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+  background-color: #007bff;
+  color: white;
+  border-bottom: 1px solid #ddd;
+  padding: 8px 16px;
+  text-align: center; /* Center-align the header text */
+}
+
+.modal-title {
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+/* Modal body */
+.modal-body {
+  padding: 12px;
+  font-size: 0.9rem;
+  text-align: center; /* Center-align all text */
+}
+
+/* Table inside modal */
+.modal-body table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  text-align: center; /* Center-align table text */
+}
+
+.modal-body th,
+.modal-body td {
+  text-align: center; /* Center-align individual cells */
+  padding: 6px;
+}
+
+.modal-body th {
+  background-color: #f8f9fa;
+  font-weight: bold;
+  text-align: center; /* Center-align header text */
+}
+
+.modal-body td {
+  border: 1px solid #ddd;
+}
+
+/* Add scrollable behavior */
+.modal-body {
+  max-height: 50vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #007bff #f1f1f1;
+}
+
+.modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+  background-color: #007bff;
+  border-radius: 3px;
+}
+
+/* Modal footer adjustments */
+.modal-footer {
+  padding: 8px 16px;
+  display: flex;
+  justify-content: flex-end;
 }

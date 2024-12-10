@@ -192,7 +192,6 @@ table.table .avatar {
   line-height: 10px;
 }
 
-
 .pagination {
   float: right;
   margin: 0 0 5px;
@@ -238,9 +237,9 @@ table.table .avatar {
   font-size: 13px;
 }
 
-
 .editU-btn,
-.deleteU-btn {
+.deleteU-btn,
+.view-icon {
   padding: 5px 9px;
   font-size: 16px;
   border: none;
@@ -252,6 +251,14 @@ table.table .avatar {
   display: flex;
 }
 
+.view-icon {
+  background-color: #ffff00;
+  color: #000000;
+}
+
+.view-icon:hover {
+  background-color: #cccc00;
+}
 .editU-btn {
   background-color: #28a745;
   color: #fff;

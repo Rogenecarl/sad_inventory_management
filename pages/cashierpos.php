@@ -18,7 +18,6 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Point of Sales</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600&display=swap" rel="stylesheet">
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -31,7 +30,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <nav class="text-center d-flex justify-content-center align-items-center">Point Of Sales</nav>
     <main class="p-2">
         <div class="filterSearch">
-            <input type="text" id="searchInput" placeholder="Search by categoty name">
+            <input type="text" id="searchInput" placeholder="Search by category name">
         </div>
         <div class="horizontal-scrollbar-wrapper">
             <div class="horizontal-scrollbar d-flex flex-row flex-nowrap" style="width: 62rem">
@@ -73,9 +72,11 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
             style="height: 3rem; background-color: #e9e9e9; border-radius: 10px">
             <h3>Products Cart</h3>
         </div>
-        <div class="OrderNum m-2">
-            <h5>Purchase ID No. <input type="number"></input></h5>
+        <div class="TransactionNum m-2">
+            <!-- Display transaction_id and make it readonly -->
+            <h5>Transaction ID No. <input type="text" id="transaction-id" readonly></h5>
         </div>
+
         <div class="table p-2" style="height: 58vh; overflow-y: auto;">
             <table id="sales-table" class="table table-bordered">
                 <thead>
@@ -92,16 +93,33 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </table>
         </div>
         <div class="footer m">
+            <h3 id="grand-total" class="text-end">Grand Total: ₱0.00</h3>
+            <form id="payment-form">
+                <div class="mb-3 d-flex">
+                    <label for="payment-method" class="form-label">Payment Method:</label>
+                    <select id="payment-method" class="form-select">
+                        <option value="Cash">Cash</option>
+                        <option value="Card">Card</option>
+                    </select>
+                </div>
+                <div class="mb-3 d-flex">
+                    <label for="user-money" class="form-label">User Money (₱)</label>
+                    <input type="number" id="user-money" class="form-control" step="0.01" min="0">
+                </div>
+                <div class="mb-3 d-flex">
+                    <label for="change" class="form-label">Change (₱)</label>
+                    <input type="text" id="change" class="form-control" readonly>
+                </div>
+            </form>
             <div class="text-end me-md-5 align-self-end">
-                <h3 id="grand-total">Grand Total: ₱0.00</h3>
                 <button class="btn btn-primary" id="confirm-purchase-btn" data-bs-toggle="modal"
-                    data-bs-target="#confirmPurchaseModal">Confirm Purchase</button>
+                    data-bs-target="#PaymentModal">Proceed to payment</button>
             </div>
         </div>
     </aside>
 
     <!-- Confirm Purchase Modal -->
-    <div class="modal fade" id="confirmPurchaseModal" tabindex="-1" aria-labelledby="confirmPurchaseModalLabel"
+    <div class="modal fade" id="PaymentModal" tabindex="-1" aria-labelledby="confirmPurchaseModalLabel"
         aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -110,21 +128,45 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    Are you sure you want to confirm this purchase? This action cannot be undone.
+                    <p id="payment-summary">You are about to purchase with <strong
+                            id="selected-payment-method"></strong> for a total of <strong
+                            id="purchase-total">₱0.00</strong>.</p>
+                    <p>Are you sure you want to proceed?</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="confirm-purchase-action"
-                        data-bs-dismiss="modal">Confirm</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="finalize-purchase-btn">Confirm</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Modal for printing the receipt -->
+    <div class="modal fade" id="printReceiptModal" tabindex="-1" aria-labelledby="printReceiptModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="printReceiptModalLabel">Receipt</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="receiptContent"></div> <!-- This will hold the receipt content dynamically -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="printReceiptBtn">Print Receipt</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <script>
         const salesData = [];
+        let transactionId = Date.now(); // Generate a unique transaction ID
+        document.getElementById("transaction-id").value = transactionId; // Display in readonly input
 
-        // Load products for a category
         function loadCategoryProducts(categoryId) {
             fetch(`../includes/get_products.php?category_id=${categoryId}`)
                 .then(res => res.json())
@@ -142,7 +184,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <td>${product.quantity}</td>
                             <td>${product.sale_price}</td>
                             <td>
-                                <button class="btn btn-primary add-sales-btn" data-id="${product.prod_id}" data-name="${product.name}" data-price="${product.sale_price}">Add Sales</button>
+                                <button class="btn btn-primary add-sales-btn" data-id="${product.prod_id}" data-name="${product.name}" data-price="${product.sale_price}" data-stock="${product.quantity}">Add Sales</button>
                             </td>
                         </tr>`;
                     });
@@ -154,17 +196,22 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 const productId = e.target.dataset.id;
                 const productName = e.target.dataset.name;
                 const productPrice = parseFloat(e.target.dataset.price);
-                const productStock = parseInt(e.target.closest('tr').querySelector('td:nth-child(6)').textContent);  // Assuming the stock is in the 6th column (adjust if necessary)
-
-                // Check if the stock is zero
-                if (productStock === 0) {
-                    toastr.error(`${productName} with zero stock cannot be added.`);
-                    return;
-                }
+                const productStock = parseInt(e.target.dataset.stock);
 
                 const existing = salesData.find(p => p.id === productId);
-                if (existing) existing.quantity++;
-                else salesData.push({ id: productId, name: productName, price: productPrice, quantity: 1 });
+                if (existing) {
+                    if (existing.quantity + 1 > productStock) {
+                        toastr.warning(`${productName} exceeds available stock!`);
+                        return;
+                    }
+                    existing.quantity++;
+                } else {
+                    if (productStock <= 0) {
+                        toastr.warning(`${productName} is out of stock!`);
+                        return;
+                    }
+                    salesData.push({ id: productId, name: productName, price: productPrice, quantity: 1, stock: productStock });
+                }
 
                 renderSalesTable();
             }
@@ -178,62 +225,154 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 const totalCost = p.price * p.quantity;
                 total += totalCost;
                 tableBody.innerHTML += `
-            <tr>
-                <td>${i + 1}</td>
-                <td>${p.name}</td>
-                <td><input type="number" class="quantity-input" value="${p.quantity}" data-id="${p.id}" /></td>
-                <td>${p.price}</td>
-                <td>${totalCost}</td>
-                <td><button class="btn btn-danger remove-btn" data-id="${p.id}">Remove</button></td>
-            </tr>`;
+                <tr>
+                    <td>${i + 1}</td>
+                    <td>${p.name}</td>
+                    <td><input type="number" class="quantity-input" value="${p.quantity}" data-id="${p.id}" min="1" max="${p.stock}" /></td>
+                    <td>${p.price}</td>
+                    <td>${totalCost}</td>
+                    <td><button class="btn btn-danger remove-btn" data-id="${p.id}">Remove</button></td>
+                </tr>`;
             });
-            document.getElementById("grand-total").textContent = `Grand Total: ₱${total}`;
+            document.getElementById("grand-total").textContent = `Grand Total: ₱${total.toFixed(2)}`;
         }
 
-        document.querySelector("#sales-table-body").addEventListener("input", (event) => {
-            if (event.target.classList.contains("quantity-input")) {
-                const productId = event.target.getAttribute("data-id");
-                const newQuantity = parseInt(event.target.value);
-                const product = salesData.find(p => p.id == productId);
-                if (product) product.quantity = newQuantity;
-                renderSalesTable();
+        // Handle the input for user money and change calculation
+        document.getElementById("user-money").addEventListener("input", () => {
+            const userMoney = parseFloat(document.getElementById("user-money").value) || 0;
+            const total = parseFloat(document.getElementById("grand-total").textContent.replace("Grand Total: ₱", ""));
+
+            if (userMoney >= total) {
+                const change = userMoney - total;
+                document.getElementById("change").value = change.toFixed(2); // Display change in the input field
+            } else {
+                document.getElementById("change").value = '0.00'; // Show 0 if user has insufficient funds
             }
         });
 
-        document.getElementById("confirm-purchase-action").addEventListener("click", () => {
+        document.getElementById("confirm-purchase-btn").addEventListener("click", () => {
+            let hasStockError = false;
+
+            // Check for stock errors
+            salesData.forEach(item => {
+                if (item.quantity > item.stock) {
+                    toastr.warning(`${item.name} exceeds available stock!`);
+                    hasStockError = true;
+                }
+            });
+
+            if (hasStockError) return; // Prevent proceeding to payment
+
+            const total = parseFloat(document.getElementById("grand-total").textContent.replace("Grand Total: ₱", ""));
+            const paymentMethod = document.getElementById("payment-method").value;
+
+            // Update modal content
+            document.getElementById("selected-payment-method").textContent = paymentMethod;
+            document.getElementById("purchase-total").textContent = `₱${total.toFixed(2)}`;
+        });
+
+        document.getElementById("finalize-purchase-btn").addEventListener("click", () => {
+            const total = parseFloat(document.getElementById("grand-total").textContent.replace("Grand Total: ₱", ""));
+            const paymentMethod = document.getElementById("payment-method").value;
+            const userMoney = parseFloat(document.getElementById("user-money").value) || 0;
+            const change = parseFloat(document.getElementById("change").value) || 0;
+
+            // Check if cash payment and user money is sufficient
+            if (paymentMethod === "Cash" && userMoney < total) {
+                toastr.warning("Insufficient funds for cash payment.");
+                return;
+            }
+
             fetch("../includes/addsales_functions.php", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ sales: salesData })
+                body: JSON.stringify({
+                    transaction_id: transactionId,
+                    sales: salesData,
+                    payment_method: paymentMethod,
+                    total_price: total,
+                    user_money: userMoney,
+                    change: change
+                })
             })
                 .then(res => res.json())
                 .then(data => {
-                    if (data.status === 'success') {
-                        toastr.success("Purchase confirmed!");
+                    if (data.status === "success") {
+                        toastr.success("Purchase completed!");
                         salesData.length = 0;
                         renderSalesTable();
+                        transactionId = Date.now();
+                        document.getElementById("transaction-id").value = transactionId;
+                        const modal = bootstrap.Modal.getInstance(document.getElementById("PaymentModal"));
+                        modal.hide();
+
+                        // Create the receipt content
+                        let receiptContent = `
+                <h3 style="text-align: center;">Receipt</h3>
+                <p><strong>Transaction ID:</strong> ${transactionId}</p>
+                <table style="width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 20px;">
+                    <thead>
+                        <tr>
+                            <th style="text-align: left; padding: 5px; border: 1px solid #000;">Product</th>
+                            <th style="text-align: left; padding: 5px; border: 1px solid #000;">Quantity</th>
+                            <th style="text-align: left; padding: 5px; border: 1px solid #000;">Price</th>
+                            <th style="text-align: left; padding: 5px; border: 1px solid #000;">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+                        // Loop through each product in the sales data and add them to the receipt
+                        salesData.forEach(item => {
+                            const itemTotal = item.price * item.quantity;
+                            receiptContent += `
+                    <tr>
+                        <td style="padding: 5px; border: 1px solid #000;">${item.name}</td>
+                        <td style="padding: 5px; border: 1px solid #000;">${item.quantity}</td>
+                        <td style="padding: 5px; border: 1px solid #000;">₱${item.price.toFixed(2)}</td>
+                        <td style="padding: 5px; border: 1px solid #000;">₱${itemTotal.toFixed(2)}</td>
+                    </tr>`;
+                        });
+
+                        receiptContent += `
+                    </tbody>
+                </table>
+                <p><strong>Grand Total:</strong> ₱${total.toFixed(2)}</p>
+                <p><strong>Payment Method:</strong> ${paymentMethod}</p>
+                <p><strong>User Money:</strong> ₱${userMoney.toFixed(2)}</p>
+                <p><strong>Change:</strong> ₱${change.toFixed(2)}</p>
+                <p style="text-align: center; margin-top: 20px;">Thank you for your purchase!</p>
+            `;
+
+                        // Show the receipt modal with the generated content
+                        document.getElementById("receiptContent").innerHTML = receiptContent;
+                        const receiptModal = new bootstrap.Modal(document.getElementById("printReceiptModal"));
+                        receiptModal.show();
+
+                        // Handle print receipt button click
+                        document.getElementById("printReceiptBtn").addEventListener("click", () => {
+                            const printWindow = window.open('', '_blank', 'width=600,height=400');
+                            printWindow.document.write(receiptContent);
+                            printWindow.document.close();  // Ensure the content is rendered
+                            printWindow.print();  // Trigger the print dialog
+                        });
                     } else {
                         toastr.error(data.message);
                     }
                 });
         });
+
+
+
+
+
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
-
     <?php include '../toast/toastr.php'; ?>
-
     <script src="../lib/addsales/addsales.js"></script>
-</body>
-
-</html>
-
-<?php include '../toast/toastr.php'; ?>
-
-<script src="../lib/addsales/addsales.js"></script>
 </body>
 
 </html>

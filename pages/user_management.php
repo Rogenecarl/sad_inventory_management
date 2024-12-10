@@ -34,7 +34,7 @@ $query->bindValue(':itemsPerPage', $itemsPerPage, PDO::PARAM_INT);
 $query->execute();
 $users = $query->fetchAll(PDO::FETCH_ASSOC);
 
-$user_levels = [1 => 'Developer', 2 => 'Admin', 3 => 'Staff'];
+$user_levels = [1 => 'Developer', 2 => 'Admin', 3 => 'Cashier'];
 $statuses = [1 => 'Active', 0 => 'Inactive'];
 
 if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest') {
@@ -51,6 +51,7 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'
             echo '<td class="text-center d-flex justify-content-center gap-2">
                     <button type="button" class="editU-btn btn-secondary" data-bs-toggle="modal" data-bs-target="#editUserModal_' . $user['User_id'] . '"><i class="ri-pencil-line"></i></button>
                     <button type="button" class="deleteU-btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteUserModal_' . $user['User_id'] . '"><i class="ri-delete-bin-line"></i></button>
+                    <button type="button" class="viewU-btn btn-primary view-icon" data-bs-toggle="modal" data-bs-target="#viewUserHistoryModal_' . $user['User_id'] . '"><i class="ri-eye-line"></i></button>
                 </td>';
             echo '</tr>';
         }
@@ -155,6 +156,9 @@ $message_type = isset($_GET['message_type']) ? $_GET['message_type'] : '';
                                         data-bs-target="#deleteUserModal_<?= $user['User_id'] ?>">
                                         <i class="ri-delete-bin-line"></i>
                                     </button>
+                                    <button class="viewPro-btn btn-primary view-icon" data-bs-toggle="modal"
+                                        data-bs-target="#viewUserHistoryModal_<?= $row['User_id'] ?>"><i
+                                            class="ri-eye-line"></i></button>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -245,7 +249,7 @@ $stmt = $conn->query("SELECT User_id, name, username, user_level, status, last_l
 $user_levels = [
     1 => 'Developer',
     2 => 'Admin',
-    3 => 'Staff'
+    3 => 'Cashier'
 ];
 $statuses = [
     1 => 'Active',
@@ -289,7 +293,7 @@ while ($row = $stmt->fetch()) {
                             <select class="form-select" name="role" required>
                                 <option value="1" <?= ($row['user_level'] == 1) ? 'selected' : '' ?>>Developer</option>
                                 <option value="2" <?= ($row['user_level'] == 2) ? 'selected' : '' ?>>Admin</option>
-                                <option value="3" <?= ($row['user_level'] == 3) ? 'selected' : '' ?>>Staff</option>
+                                <option value="3" <?= ($row['user_level'] == 3) ? 'selected' : '' ?>>Cashier</option>
                             </select>
                         </div>
                         <div class="form-group">

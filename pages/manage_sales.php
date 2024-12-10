@@ -5,40 +5,42 @@ require_login();
 
 $currentPage = basename($_SERVER['PHP_SELF'], '.php');
 
-// Default values for pagination and search
-$itemsPerPage = isset($_GET['items_per_page']) ? (int) $_GET['items_per_page'] : 50;
-$searchKeyword = isset($_GET['search']) ? trim($_GET['search']) : '';
-$currentPageNumber = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+// Initialize database connection
+global $conn;
 
-// Calculate offset for pagination
+// Ensure required variables are initialized
+$searchKeyword = $_GET['search'] ?? '';
+$itemsPerPage = $_GET['items_per_page'] ?? 50;
+$currentPageNumber = $_GET['page'] ?? 1;
 $offset = ($currentPageNumber - 1) * $itemsPerPage;
 
-// Fetch total items for pagination
-$totalItemsQuery = "SELECT COUNT(DISTINCT s.product_id) as total 
-                    FROM sales s 
-                    JOIN products p ON s.product_id = p.prod_id 
-                    WHERE p.name LIKE :search";
-$stmt = $conn->prepare($totalItemsQuery);
-$stmt->execute([':search' => '%' . $searchKeyword . '%']);
-$totalItems = (int) $stmt->fetchColumn();
+// Fetch sales data grouped by transaction_id
+$stmt = $conn->prepare("
+    SELECT transaction_id, seller_id, payment_method, date
+    FROM sales
+    WHERE transaction_id LIKE :search
+    GROUP BY transaction_id
+    ORDER BY date DESC
+    LIMIT :limit OFFSET :offset
+");
+$searchParam = "%$searchKeyword%";
+$stmt->bindParam(':search', $searchParam, PDO::PARAM_STR);
+$stmt->bindParam(':limit', $itemsPerPage, PDO::PARAM_INT);
+$stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+$stmt->execute();
+$sales = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Fetch total count for pagination
+$countStmt = $conn->prepare("
+    SELECT COUNT(DISTINCT transaction_id) AS total
+    FROM sales
+    WHERE transaction_id LIKE :search
+");
+$countStmt->bindParam(':search', $searchParam, PDO::PARAM_STR);
+$countStmt->execute();
+$totalItems = $countStmt->fetch(PDO::FETCH_ASSOC)['total'];
 $totalPages = ceil($totalItems / $itemsPerPage);
 
-// Fetch paginated results
-$sql = "
-    SELECT p.name, SUM(s.qty) as total_qty, SUM(s.total_price) as total_price
-    FROM sales s
-    JOIN products p ON s.product_id = p.prod_id
-    WHERE p.name LIKE :search
-    GROUP BY s.product_id, p.name
-    ORDER BY p.name ASC
-    LIMIT :offset, :limit
-";
-$stmt = $conn->prepare($sql);
-$stmt->bindValue(':search', '%' . $searchKeyword . '%', PDO::PARAM_STR);
-$stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-$stmt->bindValue(':limit', $itemsPerPage, PDO::PARAM_INT);
-$stmt->execute();
-$categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <link rel="stylesheet" href="../lib/managesales/managesale.css">
@@ -48,16 +50,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     <div class="table-wrapper">
         <div class="table-title">
-            <div class="d-flex justify-content-between">
-                <div class="col-sm-4">
-                    <h2>Manage sales</h2>
-                </div>
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                    data-bs-target="#createProductModal">
-                    <i class="fa fa-plus-circle"></i>
-                    Add Sales
-                </button>
-            </div>
+            <h2>Sales List</h2>
         </div>
         <div class="table-filter">
             <form method="GET" action="">
@@ -71,14 +64,14 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <option value="150" <?= $itemsPerPage == 150 ? 'selected' : '' ?>>150</option>
                                 <option value="200" <?= $itemsPerPage == 200 ? 'selected' : '' ?>>200</option>
                             </select>
-                            <span>Products</span>
+                            <span>Sales</span>
                         </div>
                     </div>
                     <div class="col-sm-9">
                         <div class="filter-group d-flex justify-content-end align-items-center">
-                            <label>Name</label>
+                            <label>Search</label>
                             <input type="text" class="form-control" name="search"
-                                value="<?= htmlspecialchars($searchKeyword) ?>" placeholder="Search">
+                                value="<?= htmlspecialchars($searchKeyword) ?>" placeholder="Search by Transaction ID">
                             <button type="submit" class="btn btn-primary ms-2"><i class="fa fa-search"></i></button>
                         </div>
                     </div>
@@ -91,22 +84,38 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <thead>
                     <tr>
                         <th class="text-center">#</th>
-                        <th>Product Name</th>
-                        <th>Quantity</th>
+                        <th>Transaction ID</th>
+                        <th>Seller</th>
+                        <th>Payment Method</th>
                         <th>Date</th>
-                        <th>Total</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php
                     $counter = $offset + 1;
-                    foreach ($categories as $row): ?>
+                    foreach ($sales as $sale):
+                        // Fetch seller name
+                        $sellerStmt = $conn->prepare("
+                            SELECT username FROM users WHERE User_id = :seller_id
+                        ");
+                        $sellerStmt->bindParam(':seller_id', $sale['seller_id'], PDO::PARAM_INT);
+                        $sellerStmt->execute();
+                        $seller = $sellerStmt->fetch(PDO::FETCH_ASSOC);
+                        ?>
                         <tr>
                             <td class="text-center"><?= $counter++ ?></td>
-                            <td class="text-center"><?= htmlspecialchars($row['name']) ?></td>
-                            <td class="text-center"><?= htmlspecialchars($row['total_qty']) ?></td>
-                            <td><?= date('F j, Y, g:i:s A') ?></td>
-                            <td class="text-center"><?= '₱ ' . number_format($row['total_price'], 0) ?></td>
+                            <td class="text-center"><?= htmlspecialchars($sale['transaction_id']) ?></td>
+                            <td class="text-center"><?= htmlspecialchars($seller['username'] ?? 'Unknown') ?></td>
+                            <td class="text-center"><?= htmlspecialchars($sale['payment_method']) ?></td>
+                            <td class="text-center"><?= date('F j, Y, g:i:s A', strtotime($sale['date'])) ?></td>
+                            <td>
+                                <button class="btn btn-primary btn-sm view-modal-btn"
+                                    data-transaction-id="<?= $sale['transaction_id'] ?>" data-bs-toggle="modal"
+                                    data-bs-target="#viewModal"><i class="ri-eye-line"></i>
+                                </button>
+
+                            </td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
@@ -115,8 +124,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         <!-- Pagination -->
         <div class="clearfix">
-            <div class="hint-text">Showing <b><?= count($categories) ?></b> out of <b><?= $totalItems ?></b> Products
-            </div>
+            <div class="hint-text">Showing <b><?= count($sales) ?></b> out of <b><?= $totalItems ?></b> Sales</div>
             <ul class="pagination">
                 <li class="page-item <?= $currentPageNumber == 1 ? 'disabled' : '' ?>">
                     <a href="?page=<?= $currentPageNumber - 1 ?>&items_per_page=<?= $itemsPerPage ?>&search=<?= htmlspecialchars($searchKeyword) ?>"
@@ -137,83 +145,78 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
 </main>
 
-
-<!-- Edit User Modal -->
-<div class="modal fade" tabindex="-1" role="dialog" id="editCatModal_<?= $row['product_id'] ?>">
-    <div class="modal-dialog" role="document">
+<div class="modal fade" id="viewModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Edit Category -
-                    <?= htmlspecialchars($row['name']) ?>
-                </h5>
+                <h5 class="modal-title" id="viewModalLabel">Transaction Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="../includes/category_actions.php?catId=<?= $row['product_id'] ?>" method="post">
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="" class="form-label">Name</label>
-                        <input type="text" class="form-control" name="name" id="name"
-                            value="<?= htmlspecialchars($row['name']) ?>" required>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" name="updateCat" id="updateCat" class="btn btn-primary">Save
-                        Changes</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Delete User Modal -->
-<div class="modal fade" tabindex="-1" role="dialog" id="deleteCatModal_<?= $row['product_id'] ?>">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Delete Category -
-                    <?= htmlspecialchars($row['name']) ?>
-                </h5>
+            <div class="modal-body">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Product Name</th>
+                            <th>Quantity</th>
+                            <th>Unit Price</th>
+                            <th>Total Price</th>
+                            <th>Date Purchased</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modal-content">
+                        <!-- Data will be populated via JavaScript -->
+                    </tbody>
+                </table>
             </div>
-            <form action="../includes/category_actions.php?catId=<?= $row['product_id'] ?>" method="post">
-                <div class="modal-body">
-                    <p>Are you sure you want to delete
-                        <?= htmlspecialchars($row['name']) ?>?
-                    </p>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" name="deleteCat" id="deleteCat" class="btn btn-danger">Delete</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </form>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
         </div>
     </div>
 </div>
 
 
-<!-- Create User Modal -->
-<div class="modal fade" tabindex="-1" role="dialog" id="createCatModal">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Create Category</h5>
-            </div>
+<!-- Add this to the PHP section -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll('.view-modal-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                const transactionId = this.getAttribute('data-transaction-id');
+                const modalContent = document.querySelector('#modal-content');
+                modalContent.innerHTML = '<tr><td colspan="5">Loading...</td></tr>';
 
-            <form action="../includes/category_actions.php" method="post">
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="" class="form-label">Name</label>
-                        <input type="text" class="form-control" name="name" id="name" required>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" name="createCat" id="createCat" class="btn btn-primary">Add</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </form>
+                // Fetch transaction details using AJAX
+                fetch(`../includes/transaction_details.php?transaction_id=${transactionId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        modalContent.innerHTML = ''; // Clear loading message
 
-        </div>
-    </div>
-</div>
+                        if (data.length > 0) {
+                            data.forEach(item => {
+                                modalContent.innerHTML += `
+                                <tr>
+                                    <td>${item.product_name}</td>
+                                    <td>${item.qty}</td>
+                                    <td>${item.unit_price}</td>
+                                    <td>${item.total_price}</td>
+                                    <td>${item.date}</td>
+                                </tr>
+                            `;
+                            });
+                        } else {
+                            modalContent.innerHTML = '<tr><td colspan="5">No data available for this transaction.</td></tr>';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        modalContent.innerHTML = '<tr><td colspan="5">Failed to load transaction details.</td></tr>';
+                    });
+            });
+        });
+    });
+
+</script>
+
 
 <script src="../lib/category/category.js"></script>
 </body>
